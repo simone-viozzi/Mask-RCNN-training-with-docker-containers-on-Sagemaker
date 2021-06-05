@@ -319,7 +319,7 @@ if __name__ == "__main__":
 
 		# aug = aug_presets.aritmetic_aug(sets=[0, 1, 2]).maybe_some(p=0.95, n=(1, 3))
 		# aug = aug_presets.geometric_aug(sets=3).seq()
-		aug = aug_presets.preset_1()
+		aug = aug_presets.color_aug(sets=4).seq()
 
 		train_generator = modellib.data_generator(trainDataset, config, shuffle=True,
                                          augmentation=aug,
