@@ -21,7 +21,7 @@ from mrcnn import visualize
 from mrcnn import model as modellib
 from mrcnn.sagemaker_utils import *
 from mrcnn.config import Config
-from mrcnn.augmentation_config import aug_presets
+from mrcnn.augmentation_presets import aug_presets
 from imgaug import augmenters as iaa
 from imgaug import parameters as iap
 from PIL import Image
@@ -324,40 +324,40 @@ if __name__ == "__main__":
 		])
 		"""
 
-		aug = iaa.Sequential([
-				iaa.SomeOf((0, 5), [
-						iaa.Fliplr(0.5), # horizontaly flip with probability
-						iaa.Flipud(0.5), # vertical flip with probability
-						iaa.Affine(	# geometric modification
-							rotate=(-25, 25), # rotation between interval (degrees)
-							mode="edge" # filler type (new pixels are generated based on edge pixels)
-						),
-						iaa.Affine(	# geometric modification
-							shear={ # simulate angled view 
-								"y": (-25, 25) # interval in degrees along y axis
-							},
-							mode="edge" # filler type (new pixels are generated based on edge pixels)
-						),
-						iaa.Affine(	# geometric modification
-							shear={ # simulate angled view of given interval in degrees
-								"x": (-25, 25) # interval in degrees along x axis
-							},
-							mode="edge" # filler type (new pixels are generated based on edge pixels)
-						)
-					],
-					random_order=True
-				),
-				iaa.SomeOf((0, 1), [
-						iaa.Affine( # geometric modification
-							scale=(1.0, 1.3) # scale immage from 100% to 130% 
-						)
-					]
-				)
-			]
-		)
+		#aug = iaa.Sequential([
+		#		iaa.SomeOf((0, 5), [
+		#				iaa.Fliplr(0.5), # horizontaly flip with probability
+		#				iaa.Flipud(0.5), # vertical flip with probability
+		#				iaa.Affine(	# geometric modification
+		#					rotate=(-25, 25), # rotation between interval (degrees)
+		#					mode="edge" # filler type (new pixels are generated based on edge pixels)
+		#				),
+		#				iaa.Affine(	# geometric modification
+		#					shear={ # simulate angled view 
+		#						"y": (-25, 25) # interval in degrees along y axis
+		#					},
+		#					mode="edge" # filler type (new pixels are generated based on edge pixels)
+		#				),
+		#				iaa.Affine(	# geometric modification
+		#					shear={ # simulate angled view of given interval in degrees
+		#						"x": (-25, 25) # interval in degrees along x axis
+		#					},
+		#					mode="edge" # filler type (new pixels are generated based on edge pixels)
+		#				)
+		#			],
+		#			random_order=True
+		#		),
+		#		iaa.SomeOf((0, 1), [
+		#				iaa.Affine( # geometric modification
+		#					scale=(1.0, 1.3) # scale immage from 100% to 130% 
+		#				)
+		#			]
+		#		)
+		#	]
+		#)
 
 		train_generator = modellib.data_generator(trainDataset, config, shuffle=True,
-                                         augmentation=aug_presets.aritmetic_aug(sets=2).maybe_some(0.95, 3),
+                                         augmentation=aug_presets.blend_aug(sets=3).seq(),
                                          batch_size=config.BATCH_SIZE)
 		
 		print(f'batch size: {config.BATCH_SIZE}')

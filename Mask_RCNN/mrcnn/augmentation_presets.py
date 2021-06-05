@@ -92,7 +92,7 @@ class aug_presets():
             default interval of aplayed augmentations (0, max)
             """
             n = (0, self.n_aug) if n == 0 else \
-                (0, n) if isinstance(n, tuple) else \
+                n if isinstance(n, tuple) else \
                 n if isinstance(n, list) else (0, self.n_aug)
 
             return iaa.SomeOf(n, self.aug_list, random_order=rand)
@@ -117,7 +117,7 @@ class aug_presets():
             the default interval of aplayed augmentations (0, max)
             """
             n = (0, self.n_aug) if n == 0 else \
-                (0, n) if isinstance(n, tuple) else \
+                n if isinstance(n, tuple) else \
                 n if isinstance(n, list) else (0, self.n_aug)
 
             return iaa.Sometimes(p, then_list= 
@@ -257,12 +257,87 @@ class aug_presets():
     # BLEND ##############################################################################
     # overview: https://imgaug.readthedocs.io/en/latest/source/overview/blend.html
     # docs: https://imgaug.readthedocs.io/en/latest/source/api_augmenters_blend.html
+    class blend_aug(base_aug):
 
+        def __init__(self, severity=1.0, sets=[0, 1, 2, 3]):
+
+            s = severity
+            self.aug_lists = {
+                0: [
+                    iaa.BlendAlphaRegularGrid(
+                        nb_rows=(15, 40), 
+                        nb_cols=(15, 40),
+                        foreground=iaa.MotionBlur(k=int(20*s))
+                    )
+                ],
+                1: [
+                    iaa.BlendAlphaFrequencyNoise(foreground=iaa.EdgeDetect(1.0),
+                                                 iterations=(1, 3),
+                                                 upscale_method='linear',
+                                                 size_px_max=(2, 8),
+                                                 sigmoid=0.2)
+                ],
+                2: [
+                    iaa.BlendAlphaSimplexNoise(
+                                iaa.EdgeDetect(iap.Clip(iap.Absolute(iap.Normal(0.4, 0.18)), 0, 1)),
+                                upscale_method="linear",
+                        per_channel=True)
+                ],
+                3: [
+                    iaa.BlendAlphaSimplexNoise(
+                        iaa.AdditiveGaussianNoise(
+                            scale=iap.Clip(iap.Poisson(
+                                (0, int(60*s))), 0, 255),
+                            per_channel=True),
+                        upscale_method="linear",
+                        per_channel=True)
+                ]
+            }
+
+            if not isinstance(sets, list):
+                sets = [sets]
+
+            for list_ in sets:
+                self.aug_list += self.aug_lists[list_]
+            
+            self.n_aug = len(self.aug_list)
 
     # BLUR ###############################################################################
     # overview: https://imgaug.readthedocs.io/en/latest/source/overview/blur.html
     # docs: https://imgaug.readthedocs.io/en/latest/source/api_augmenters_blur.html
 
+
+    class blur_aug(base_aug):
+
+        def __init__(self, severity=1.0, sets=[0, 1, 2, 3]):
+
+            s = severity
+            self.aug_lists = {
+                0: [
+                    iaa.GaussianBlur(sigma=(0, 5.0*s)),
+                ],
+                1: [
+                    iaa.OneOf([
+                        iaa.AverageBlur(k=((15*s, 25*s), (0, 2))),
+                        iaa.AverageBlur(k=((0, 2), (15*s, 25*s))),
+                    ])
+                ],
+                2: [
+                    iaa.BilateralBlur(
+                            d=(4, int(15*s)), sigma_color=(20, 250), sigma_space=(20, 250))
+                ],
+                3: [
+                    iaa.MotionBlur(k=int(13*s))
+                ]
+            }
+
+            if not isinstance(sets, list):
+                sets = [sets]
+
+            for list_ in sets:
+                self.aug_list += self.aug_lists[list_]
+            
+            self.n_aug = len(self.aug_list)
 
     # CONVOLUTIONAL ######################################################################
     # overview: https://imgaug.readthedocs.io/en/latest/source/overview/convolutional.html
@@ -273,6 +348,7 @@ class aug_presets():
     # overview: https://imgaug.readthedocs.io/en/latest/source/overview/pooling.html
     # docs: https://imgaug.readthedocs.io/en/latest/source/api_augmenters_pooling.html
 
+    
 
     ######################################################################################
     #   ???
