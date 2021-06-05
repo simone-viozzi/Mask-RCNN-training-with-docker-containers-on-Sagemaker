@@ -1,5 +1,7 @@
 from imgaug import augmenters as iaa
 from imgaug import parameters as iap
+from imgaug.augmenters.meta import Sometimes
+from imgaug.augmenters.size import Scale
 
 class aug_presets():
     """
@@ -46,8 +48,8 @@ class aug_presets():
             ], random_order=True)
         return psychedelic_
 
-
-    def preset_1(self, severity=1.0):
+    @staticmethod
+    def preset_1(severity=1.0):
         """[summary]
             Apply a large variety of augmentation, included the most disruptives,
             standard augmentations is applayed in the same way but th heaviest augmentations
@@ -59,11 +61,14 @@ class aug_presets():
             [type]: [description]
         """   
 
-        various = iaa.Sequential([
-
-            ]
+        aug = iaa.SomeOf((1, 2), [
+                aug_presets.aritmetic_aug().maybe_some(p=0.95, n=(1, 3)),
+                aug_presets.geometric_aug().maybe_some(p=0.95, n=(1, 3))
+            ],
+            random_order=True
         )
 
+        return aug
 
     ######################################################################################################
     #   AUGMENTATIONS SETS DIVIDED BY TYPE  ##############################################################
@@ -111,7 +116,7 @@ class aug_presets():
             return iaa.Sometimes(p, then_list= 
                             iaa.Sequential(self.aug_list, random_order=rand))
 
-        def maybe_some(self, p=0.5, n = 0, rand = True):
+        def maybe_some(self, p=0.5, n=0,rand = True):
             """
             return augmentor that if applayed (with probability p) apply a subset of augmentations
             the default interval of aplayed augmentations (0, max)
@@ -143,48 +148,73 @@ class aug_presets():
             self.aug_lists = {
                 0 : [
                     iaa.OneOf([
-                            iaa.Add((int(-30*s), int(30*s)), per_channel=True),
-                            iaa.AddElementwise((int(-30*s), int(30*s)), per_channel=True)
+                            iaa.Add((int(-50*s), int(50*s)), per_channel=True),
+                            iaa.AddElementwise((int(-50*s), int(50*s)), per_channel=True)
                         ]
                     )
                 ],
                 1 : [ 
                     iaa.OneOf([
                             iaa.AdditiveGaussianNoise(scale=iap.Clip(iap.Poisson((-30*s, 30*s)), 0, 255), per_channel=True),
-                            iaa.OneOf([
-                                    iaa.Multiply((0.9*s, 1.2*s)),
-                                    iaa.Multiply((0.9*s, 1.2*s), per_channel=True)
-                                ]
-                            )
+                            iaa.Multiply((0.6*s, 1.4*s)),
+                            iaa.Multiply((0.6*s, 1.4*s), per_channel=True)
                         ]
                     )
                 ],
                 2 : [
                     iaa.OneOf([
                             iaa.OneOf([
-                                    iaa.ImpulseNoise((0.6, 0.8)),
-                                    iaa.Dropout(p=iap.Uniform((0.4, 0.7*s), 0.8*s))
+                                    iaa.ImpulseNoise((0.025, 0.1)),
+                                    iaa.Dropout(p=iap.Uniform((0.5, 0.7*s), 0.9*s))
                                 ]
                             ),
                             iaa.OneOf([
-                                iaa.CoarseSaltAndPepper(0.1*s, size_percent=(0.03, 0.1)),
-                                iaa.CoarseSaltAndPepper(0.1*s, size_percent=(0.03, 0.1), per_channel=True)
-                                ]
-                            ),
-                            iaa.OneOf([
-                                    iaa.Cutout(
-                                        nb_iterations=(5, 10),
-                                        size = (0.05, 0.1),
-                                        fill_mode="gaussian",
-                                        fill_per_channel=True,
-                                        squared=False
+                                    iaa.OneOf([
+                                        iaa.CoarseSaltAndPepper((0.025*s, 0.05*s), size_percent=(0.03, 0.1)),
+                                        iaa.WithPolarWarping(iaa.CoarseSaltAndPepper((0.025*s, 0.05*s), size_percent=(0.03, 0.1))),
+                                        ]
                                     ),
-                                    iaa.Cutout(
-                                        nb_iterations=(5, 10),
-                                        size=(0.05, 0.1),
-                                        cval=(0, 255),
-                                        fill_per_channel=0.5,
-                                        squared=False
+                                    iaa.OneOf([
+                                        iaa.CoarseSaltAndPepper((0.025*s, 0.05*s), size_percent=(0.03, 0.1), per_channel=True),
+                                        iaa.WithPolarWarping(iaa.CoarseSaltAndPepper((0.025*s, 0.05*s), size_percent=(0.03, 0.1), per_channel=True))
+                                        ]
+                                    )
+                                ]
+                            ),
+                            iaa.OneOf([
+                                    iaa.OneOf([
+                                            iaa.Cutout(
+                                                nb_iterations=(5, 10),
+                                                size = (0.05, 0.1),
+                                                fill_mode="gaussian",
+                                                fill_per_channel=True,
+                                                squared=False
+                                            ),
+                                            iaa.WithPolarWarping(iaa.Cutout(
+                                                nb_iterations=(5, 10),
+                                                size = (0.05, 0.1),
+                                                fill_mode="gaussian",
+                                                fill_per_channel=True,
+                                                squared=False
+                                            ))
+                                        ]
+                                    ),
+                                    iaa.OneOf([
+                                            iaa.Cutout(
+                                                nb_iterations=(5, 10),
+                                                size=(0.05, 0.1),
+                                                cval=(0, 255),
+                                                fill_per_channel=0.5,
+                                                squared=False
+                                            ),
+                                            iaa.WithPolarWarping(iaa.Cutout(
+                                                nb_iterations=(5, 10),
+                                                size=(0.05, 0.1),
+                                                cval=(0, 255),
+                                                fill_per_channel=0.5,
+                                                squared=False
+                                            ))
+                                        ]
                                     )
                                 ]
                             )
@@ -208,38 +238,59 @@ class aug_presets():
 
     class geometric_aug(base_aug):
         
-        def __init__(self, severity=1.0, lists=[0, 1, 2, 3]):
+        def __init__(self, severity=1.0, sets=[0, 1, 2]):
             
             s = severity
             self.aug_lists = {
                 0 : [
-                    iaa.Fliplr(0.5), # horizontaly flip with probability
-                    iaa.Flipud(0.5), # vertical flip with probability
-                    iaa.Affine(	# rotation with edge filling
-                        rotate=(-25, 25), # rotation between interval (degrees)
-                        mode="constant", # filler type (new pixels are generated based on edge pixels)
-                        cval=0
+                    iaa.SomeOf((1, 2), [
+                        iaa.Fliplr(0.8), # horizontaly flip with probability
+                        iaa.Flipud(0.8), # vertical flip with probability
+                        ],
+                        random_order=True
                     )
                 ],
                 1 : [ 
-                    iaa.AdditiveGaussianNoise(scale=iap.Clip(iap.Poisson((0, int(50*s))), 0, 255), per_channel=True),
-                    iaa.Multiply((0.5*s, 1.5*s)),
-                    iaa.Multiply((0.5*s, 1.5*s), per_channel=True)
+                    iaa.Sometimes(p=0.85, 
+                        then_list=iaa.SomeOf((1, 3), [
+                                iaa.ScaleX((0.6, 1.4), mode="constant", cval= 0),
+                                iaa.ScaleY((0.6, 1.4), mode="constant", cval= 0),
+                                iaa.TranslateX(percent=(-0.2, 0.2), mode="constant", cval= 0),
+                                iaa.TranslateY(percent=(-0.2, 0.2), mode="constant", cval= 0),
+                                iaa.Rotate((-30, 30), mode="constant", cval= 0),
+                                iaa.ShearX((-15, 15), mode="constant", cval= 0),
+                                iaa.ShearY((-15, 15), mode="constant", cval= 0)
+                            ],
+                            random_order=True
+                        ),
+                        else_list=iaa.SomeOf((4, 7), [
+                                iaa.ScaleX((0.6, 1.4), mode="constant", cval= 0),
+                                iaa.ScaleY((0.6, 1.4), mode="constant", cval= 0),
+                                iaa.TranslateX(percent=(-0.2, 0.2), mode="constant", cval= 0),
+                                iaa.TranslateY(percent=(-0.2, 0.2), mode="constant", cval= 0),
+                                iaa.Rotate((-30, 30), mode="constant", cval= 0),
+                                iaa.ShearX((-15, 15), mode="constant", cval= 0),
+                                iaa.ShearY((-15, 15), mode="constant", cval= 0)
+                            ],
+                            random_order=True
+                        )
+                    )
                 ],
                 2 : [
-                    iaa.ImpulseNoise(0.4*s),
-                    iaa.Dropout(p=(0, 0.6*s)),
-                    iaa.CoarseSaltAndPepper(0.2*s, size_percent=(0.01, 0.1)),
-                    iaa.CoarseSaltAndPepper(0.2*s, size_percent=(0.01, 0.1), per_channel=True)
+                    iaa.OneOf([
+                        iaa.PiecewiseAffine(scale=(0.01, 0.05), mode="constant", cval= 0),
+                        iaa.ElasticTransformation(alpha=(2.0, 10.0), sigma=(0.1, 1.0), mode="constant", cval= 0),
+                        iaa.PerspectiveTransform(scale=(0.05, 0.20), mode="constant", cval= 0)
+                    ])
                 ]
             }
             
-            if not isinstance(lists, list):
-                lists = [lists]
+            if not isinstance(sets, list):
+                sets = [sets]
 
-            for list_ in lists:
+            for list_ in sets:
                 self.aug_list += self.aug_lists[list_]
-
+            
             self.n_aug = len(self.aug_list)
 
 
