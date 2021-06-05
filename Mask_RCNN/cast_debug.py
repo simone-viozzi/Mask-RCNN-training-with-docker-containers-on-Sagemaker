@@ -29,7 +29,7 @@ import base64
 import zlib
 import json
 import io
-
+import imageio
 
 # NOTE: used in the load_mask function
 # don't move this declaration.
@@ -229,8 +229,8 @@ if __name__ == "__main__":
 
 	#'''
 	os.environ['SM_CHANNELS'] = '["dataset","model"]'
-	os.environ['SM_CHANNEL_DATASET'] = 'datasets/cast_dataset'
-	os.environ['SM_CHANNEL_MODEL'] = 'datasets/cast_dataset'   
+	#os.environ['SM_CHANNEL_DATASET'] = 'datasets/cast_dataset'
+	#os.environ['SM_CHANNEL_MODEL'] = 'datasets/cast_dataset'   
 	os.environ['SM_HPS'] = '{"NAME": "cast", \
 							 "GPU_COUNT": 1, \
 							 "IMAGES_PER_GPU": 1,\
@@ -240,6 +240,9 @@ if __name__ == "__main__":
 							 ]\
 							}'
 	#'''
+
+	os.environ['SM_CHANNEL_DATASET'] = '/home/massi/Progetti/repository_simone/Mask-RCNN-training-with-docker-containers-on-Sagemaker/datasets/cast_dataset'
+	os.environ['SM_CHANNEL_MODEL'] = '/home/massi/Progetti/repository_simone/Mask-RCNN-training-with-docker-containers-on-Sagemaker/datasets/cast_dataset' 
 
 	# default env vars
 	user_defined_env_vars = {"checkpoints": "/opt/ml/checkpoints",
@@ -317,13 +320,14 @@ if __name__ == "__main__":
 			**hyperparameters
 		)
 
+		# aug = aug_presets.blend_aug().one()
 		# aug = aug_presets.aritmetic_aug(sets=[0, 1, 2]).maybe_some(p=0.95, n=(1, 3))
 		# aug = aug_presets.geometric_aug(sets=3).seq()
 		aug = aug_presets.preset_1()
 
 		train_generator = modellib.data_generator(trainDataset, config, shuffle=True,
-                                         augmentation=aug,
-                                         batch_size=config.BATCH_SIZE)
+										 augmentation=aug,
+										 batch_size=config.BATCH_SIZE)
 		
 		print(f'batch size: {config.BATCH_SIZE}')
 
@@ -444,4 +448,47 @@ if __name__ == "__main__":
 		
 		#closing all open windows 
 		cv2.destroyAllWindows() 
+	
+	elif args["mode"] == "demo":
+		
+		config = castConfig(
+			#STEPS_PER_EPOCH=STEPS_PER_EPOCH,
+			#VALIDATION_STEPS=VALIDATION_STEPS,
+			NUM_CLASSES=5,
+			**hyperparameters
+		)
+
+		# aug = aug_presets.blend_aug().one()
+		# aug = aug_presets.aritmetic_aug(sets=[0, 1, 2]).maybe_some(p=0.95, n=(1, 3))
+		# aug = aug_presets.geometric_aug(sets=3).seq()
+		aug = aug_presets.preset_1()
+
+		train_generator = modellib.data_generator(trainDataset, config, shuffle=True,
+										 augmentation=aug,
+										 batch_size=config.BATCH_SIZE)
+
+		import imgaug as ia
+
+		cols = 10
+		rows = 15
+		img_size = 256
+		images_aug = []
+
+		img_rgb_resize = np.zeros((img_size, img_size, 3), dtype='uint8')
+
+		for i in range(cols*rows):
 			
+			train_data = next(train_generator)
+
+			im_rgb = train_data[0][0][0, :, :, :]
+
+			for i in range(3):	
+					im_rgb[:,:,i] = im_rgb[:,:,i] + config.MEAN_PIXEL[i]
+
+			img_rgb_resize = imutils.resize(im_rgb, width=img_size)
+
+			images_aug.append(img_rgb_resize)
+
+		# Convert cells to a grid image and save.
+		result_grid_image = ia.draw_grid(images_aug, cols=cols)
+		imageio.imwrite("test_img.jpg", result_grid_image)

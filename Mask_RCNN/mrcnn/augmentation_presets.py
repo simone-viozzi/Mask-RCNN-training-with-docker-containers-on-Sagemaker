@@ -61,9 +61,11 @@ class aug_presets():
             [type]: [description]
         """   
 
-        aug = iaa.SomeOf((1, 2), [
+        aug = iaa.SomeOf((1, 4), [
                 aug_presets.aritmetic_aug().maybe_some(p=0.95, n=(1, 3)),
-                aug_presets.geometric_aug().maybe_some(p=0.95, n=(1, 3))
+                aug_presets.geometric_aug().maybe_some(p=0.95, n=(1, 3)),
+                aug_presets.contrast_aug().maybe_some(p=0.95, n=(1, 3)),
+                aug_presets.blend_aug().one()
             ],
             random_order=True
         )
@@ -298,7 +300,52 @@ class aug_presets():
     # overview: https://imgaug.readthedocs.io/en/latest/source/overview/contrast.html
     # docs: https://imgaug.readthedocs.io/en/latest/source/api_augmenters_contrast.html
     
+    class contrast_aug(base_aug):
 
+        def __init__(self, severity=1.0, sets=[0, 1, 2]):
+            
+            s = severity
+            self.aug_lists = {
+                0: [
+                    iaa.OneOf([
+                        iaa.GammaContrast((0.3, 3.0)),
+                        iaa.GammaContrast((0.5, 2.0), per_channel=True)
+                    ]
+                    )
+                ],
+                1: [
+                    iaa.OneOf([
+                        iaa.SigmoidContrast(gain=(3, 10), cutoff=(0.4, 0.6)),
+                        iaa.SigmoidContrast(
+                            gain=(3, 10),
+                            cutoff=(0.4, 0.6),
+                            per_channel=True
+                        ),
+                        iaa.LogContrast(gain=(0.6, 1.4)),
+                        iaa.LogContrast(gain=(0.6, 1.4), per_channel=True),
+                        iaa.LinearContrast((0.4, 1.6)),
+                        iaa.LinearContrast((0.4, 1.6), per_channel=True)
+                    ]
+                    )
+                ],
+                2: [
+                    iaa.OneOf([
+                        iaa.AllChannelsCLAHE(clip_limit=(1, 15)),
+                        iaa.AllChannelsCLAHE(clip_limit=(1, 10), per_channel=True),
+                        iaa.CLAHE(clip_limit=(1, 10)),
+                        iaa.AllChannelsHistogramEqualization()
+                    ]
+                    )
+                ]
+            }
+
+            if not isinstance(sets, list):
+                sets = [sets]
+
+            for list_ in sets:
+                self.aug_list += self.aug_lists[list_]
+            
+            self.n_aug = len(self.aug_list)
 
     # COLOR ##############################################################################
     # overview: https://imgaug.readthedocs.io/en/latest/source/overview/color.html
@@ -356,8 +403,6 @@ class aug_presets():
     # BLUR ###############################################################################
     # overview: https://imgaug.readthedocs.io/en/latest/source/overview/blur.html
     # docs: https://imgaug.readthedocs.io/en/latest/source/api_augmenters_blur.html
-
-
     class blur_aug(base_aug):
 
         def __init__(self, severity=1.0, sets=[0, 1, 2, 3]):
