@@ -323,7 +323,9 @@ if __name__ == "__main__":
 		# aug = aug_presets.blend_aug().one()
 		# aug = aug_presets.aritmetic_aug(sets=[0, 1, 2]).maybe_some(p=0.95, n=(1, 3))
 		# aug = aug_presets.geometric_aug(sets=3).seq()
-		aug = aug_presets.color_aug(sets=4).seq()
+		# aug = aug_presets.color_aug().seq()
+		aug = aug_presets.preset_1()
+
 
 		train_generator = modellib.data_generator(trainDataset, config, shuffle=True,
 										 augmentation=aug,
@@ -469,7 +471,7 @@ if __name__ == "__main__":
 
 		import imgaug as ia
 
-		cols = 10
+		cols = 15
 		rows = 15
 		img_size = 256
 		images_aug = []

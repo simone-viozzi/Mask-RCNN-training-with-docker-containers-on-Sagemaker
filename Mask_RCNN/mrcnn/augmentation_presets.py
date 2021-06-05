@@ -22,7 +22,7 @@ class aug_presets():
             [type]: [description]
         """        
         psychedelic_ = iaa.Sequential([
-                iaa.SomeOf((0,1),[
+                    iaa.SomeOf((0,1),[
                         iaa.BlendAlphaFrequencyNoise(
                             foreground=iaa.EdgeDetect(1.0),
                             per_channel=True
@@ -37,7 +37,7 @@ class aug_presets():
                             per_channel=0.5
                         )
                     ]
-                ),
+                    ),
                 iaa.PiecewiseAffine(scale=iap.Absolute(iap.Normal(0, 0.1))),
                 iaa.Sharpen((0.0, 1.0)),       # sharpen the image
                 iaa.Affine(
@@ -61,14 +61,20 @@ class aug_presets():
             [type]: [description]
         """   
 
-        aug = iaa.SomeOf((1, 4), [
-                aug_presets.aritmetic_aug().maybe_some(p=0.95, n=(1, 3)),
-                aug_presets.geometric_aug().maybe_some(p=0.95, n=(1, 3)),
-                aug_presets.contrast_aug().maybe_some(p=0.95, n=(1, 3)),
-                aug_presets.blend_aug().one()
-            ],
-            random_order=True
-        )
+        aug = iaa.Sequential([
+                    aug_presets.geometric_aug(sets=[0, 1]).some(n=(1, 2)),
+                    iaa.SomeOf((2, 4), [
+                            aug_presets.geometric_aug(sets=2).maybe_one(),
+                            aug_presets.aritmetic_aug().maybe_some(p=0.95, n=(1, 3)),
+                            aug_presets.contrast_aug().maybe_some(p=0.95, n=(1, 3)),
+                            aug_presets.blend_aug().maybe_one(p=0.8),
+                            aug_presets.color_aug().maybe_one(p=0.8)
+                        ],
+                        random_order=True
+                    )
+                ],
+                random_order=True
+            )
 
         return aug
 
@@ -135,7 +141,7 @@ class aug_presets():
             return augmentor that if applayed (with probability p) apply one augmentation in the given set
             """
             return iaa.Sometimes(p, then_list= 
-                            iaa.OneOf(self.aug_list, random_order=rand))
+                            iaa.OneOf(self.aug_list))
         
 
     # ARITMETIC ##########################################################################
@@ -245,7 +251,7 @@ class aug_presets():
             s = severity
             self.aug_lists = {
                 0 : [
-                    iaa.SomeOf((1, 2), [
+                    iaa.SomeOf((1, 3), [
                         iaa.Fliplr(0.8), # horizontaly flip with probability
                         iaa.Flipud(0.8), # vertical flip with probability
                         ],
@@ -253,13 +259,13 @@ class aug_presets():
                     )
                 ],
                 1 : [ 
-                    iaa.Sometimes(p=0.85, 
-                        then_list=iaa.SomeOf((1, 3), [
+                    iaa.Sometimes(p=0.9, 
+                        then_list=iaa.SomeOf((1, 2), [
                                 iaa.ScaleX((0.6, 1.4), mode="constant", cval= 0),
                                 iaa.ScaleY((0.6, 1.4), mode="constant", cval= 0),
                                 iaa.TranslateX(percent=(-0.2, 0.2), mode="constant", cval= 0),
                                 iaa.TranslateY(percent=(-0.2, 0.2), mode="constant", cval= 0),
-                                iaa.Rotate((-30, 30), mode="constant", cval= 0),
+                                iaa.Rotate((-45, 45), mode="constant", cval= 0),
                                 iaa.ShearX((-15, 15), mode="constant", cval= 0),
                                 iaa.ShearY((-15, 15), mode="constant", cval= 0)
                             ],
@@ -376,7 +382,7 @@ class aug_presets():
                 ],
                 3: [
                     iaa.ChangeColorTemperature((1100, 10000))
-                ],
+                ]
             }
 
             if not isinstance(sets, list):
