@@ -350,7 +350,42 @@ class aug_presets():
     # COLOR ##############################################################################
     # overview: https://imgaug.readthedocs.io/en/latest/source/overview/color.html
     # docs: https://imgaug.readthedocs.io/en/latest/source/api_augmenters_color.html
+    class color_aug(base_aug):
+        def __init__(self, severity=1.0, sets=[0, 1, 2, 3]):
 
+            s = severity
+            self.aug_lists = {
+                0: [
+                    iaa.WithColorspace(
+                        to_colorspace="RGB",
+                        from_colorspace="HSV",
+                        children=iaa.Grayscale(alpha=(0.0, 1.0))
+                    )
+                ],
+                1: [
+                    iaa.AddToHueAndSaturation((-50, 50), per_channel=True)
+                ],
+                2: [
+                    iaa.Sequential([
+                        iaa.ChangeColorspace(
+                            from_colorspace="HSV", to_colorspace="RGB"),
+                        iaa.WithChannels(children=iaa.Add((-10, 10))),
+                        iaa.ChangeColorspace(
+                            from_colorspace="RGB", to_colorspace="HSV")
+                    ])
+                ],
+                3: [
+                    iaa.ChangeColorTemperature((1100, 10000))
+                ],
+            }
+
+            if not isinstance(sets, list):
+                sets = [sets]
+
+            for list_ in sets:
+                self.aug_list += self.aug_lists[list_]
+            
+            self.n_aug = len(self.aug_list)
 
     # BLEND ##############################################################################
     # overview: https://imgaug.readthedocs.io/en/latest/source/overview/blend.html
