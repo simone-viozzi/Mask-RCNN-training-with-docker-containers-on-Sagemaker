@@ -200,6 +200,8 @@ The function described override the load_mask() function present in the Mask R-C
 
 Notebook with code example: [**supervisely_json_dataset_preparetion.ipynb**](https://github.com/MassimilianoBiancucci/Mask-RCNN-training-with-docker-containers-on-Sagemaker/blob/main/dataset_preparation_notebooks/supervisely_json_dataset_preparation.ipynb)
 
+![Mask preview](assets/augmentation_demo.jpg)
+
 - - -
 
 ## **Training on Sagemaker**
