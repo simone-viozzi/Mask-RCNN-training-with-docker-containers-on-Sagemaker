@@ -251,6 +251,7 @@ if __name__ == "__main__":
 
 	hyperparameters = json.loads(read_env_var('SM_HPS', {}))
 	
+	#prova
 
 	# TRAIN DATASET DEFINITIONS -------------------------------------------------------------
 	train_images_path = os.path.sep.join([dataset_path, "training", "img"])
