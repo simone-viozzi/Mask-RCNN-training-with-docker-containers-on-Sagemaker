@@ -19,12 +19,13 @@ from mrcnn import visualize
 from mrcnn import model as modellib
 from mrcnn.sagemaker_utils import *
 from mrcnn.config import Config
-from imgaug import augmenters as iaa
+from mrcnn.augmentation_presets import aug_presets
 from PIL import Image
 import base64
 import zlib
 import json
 import io
+
 # NOTE: used in the load_mask function
 # don't move this declaration.
 CLASS_NAMES = {
@@ -238,14 +239,8 @@ if __name__ == "__main__":
 
 	#print all config varaibles
 	config.display()
-	
-	# initialize the image augmentation process
-	# fa l'argomentazione con al massimo 2 tipi di argomentazione
-	aug = iaa.SomeOf((0, 2), [
-		iaa.Fliplr(0.5),
-		iaa.Flipud(0.5),
-		iaa.Affine(rotate=(-10, 10))
-	])
+
+	aug = aug_presets.preset_1()
 
 	# initialize the model and load the COCO weights so we can
 	# perform fine-tuning
@@ -272,6 +267,7 @@ if __name__ == "__main__":
 		
 		model.train(trainDataset, valDataset, epochs=train_seq[i]['epochs'], 
 			layers=train_seq[i]['layers'], learning_rate=train_seq[i]['lr'], augmentation=aug)
+			
 	''' 
 	 OLD FASHION
 	# train *just* the layer heads

@@ -149,7 +149,7 @@ class aug_presets():
     # docs: https://imgaug.readthedocs.io/en/latest/source/api_augmenters_arithmetic.html
 
     class aritmetic_aug(base_aug):
-
+        
         def __init__(self, severity=1.0, sets=[0, 1, 2]):
             
             s = severity
