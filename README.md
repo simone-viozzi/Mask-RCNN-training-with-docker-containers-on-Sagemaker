@@ -1,4 +1,4 @@
-# **Mask R-CNN training with docker containers on Sagemaker**
+ **Mask R-CNN training with docker containers on Sagemaker**
 
 Mask R-CNN for metal casting defects detection and instance segmentation using Keras and TensorFlow.
 
@@ -6,7 +6,7 @@ This project was possible thanks to the repository [matterport/Mask_RCNN](https:
 
 - - -
 
-## **Index**
+# **Index**
 
 1. [Overview](#overview)
 1. [Project structure](#project-structure)
@@ -26,22 +26,22 @@ This project was possible thanks to the repository [matterport/Mask_RCNN](https:
 
 - - -
 
-## **Overview**
+# **Overview**
 
 The core of the project was the matterport implementation of [Mask R-CNN](https://arxiv.org/pdf/1703.06870.pdf) an architecture proposed by Ross Girshick et al., revisited using [Feature pyramid network](https://arxiv.org/pdf/1612.03144.pdf) as final stage and using [Resnet101](https://arxiv.org/pdf/1512.03385.pdf) as backbone.
 
 - - -
 
-## **Project struscture**
+# **Project struscture**
 
 In this section is shown the structure of the project and how each example is organized.
 [#TODO]
 
 - - -
 
-## **Dataset**
+# **Dataset**
 
-### **Original dataset**
+## **Original dataset**
 
 The original dataset is an image collection of one type of casted metal product done with similar angle of view and with the objects every in front view.
 The dataset was divided only by defected and not defected object, in fact it is a dataset for only image classification.
@@ -50,7 +50,7 @@ the dataset it's available on kaggle at this [link](https://www.kaggle.com/ravir
 
 ![Original dataset preview](https://github.com/MassimilianoBiancucci/Mask-RCNN-training-with-docker-containers-on-Sagemaker/blob/main/assets/Original_dataset_preview.png?raw=true)
 
-### **Our dataset**
+## **Our dataset**
 
 Our dataset start from the precedent mentioned image classification dataset, in which we have added masks for the segmentation task. The dataset was done using [Supervisely](https://app.supervise.ly/) a powerfull tool for create your own 3D 2D datasets, for object detection, semantic and instance segmentation.
 The original dataset was made by 1300 images, due to time constraints we have only annotated 238 images. In our dataset structure are present 4 classes [disk, hole, chipping, deburring], the first is present in every image of the dataset, the other three classes are preset only in images with defected disks.
@@ -62,7 +62,7 @@ The dataset is released in [**supervisely format**](https://docs.supervise.ly/da
 The goal for the dataset preparation for training Mask R-CNN is to extract from the dataset for each image several masks, one for each istance of object that is present into this immage and that is labled. Each mask is a simple numpy array of bool or uint8 with shape (height, width), where the background is indicated with zero and the labeed region of our istance is marked with pixel of value 1.
 At the end of the process we need to obtain for each image a numpy array with shape (height, width, n_inst) where n_inst is the number of instace of every class in the image and an array with shape (n_inst) that contains the class of each instance into the 3D array of masks.
 
-#### **Mask images preparation**
+### **Mask images preparation**
 
 Notebook with code example: [**supervisely_mask_dataset_preparetion.ipynb**](https://github.com/MassimilianoBiancucci/Mask-RCNN-training-with-docker-containers-on-Sagemaker/blob/main/dataset_preparation_notebooks/supervisely_mask_dataset_preparetion.ipynb)
 
@@ -102,7 +102,7 @@ One last comment should be done about using this form of the dataset for the ins
 
 Notebook with code example: [**supervisely_mask_dataset_preparetion.ipynb**](https://github.com/MassimilianoBiancucci/Mask-RCNN-training-with-docker-containers-on-Sagemaker/blob/main/dataset_preparation_notebooks/supervisely_mask_dataset_preparetion.ipynb)
 
-#### **Json annotations preparation**
+### **Json annotations preparation**
 
 Notebook with code example: [**supervisely_json_dataset_preparetion.ipynb**](https://github.com/MassimilianoBiancucci/Mask-RCNN-training-with-docker-containers-on-Sagemaker/blob/main/dataset_preparation_notebooks/supervisely_json_dataset_preparation.ipynb)
 
@@ -169,7 +169,7 @@ For achieve our goal, to obtain a tensor of masks for each object instace in the
 
 ```python
 
-#decode function 
+decode function 
 def base64_2_mask(s):
     z = zlib.decompress(base64.b64decode(s))
     n = np.frombuffer(z, np.uint8)
@@ -177,7 +177,7 @@ def base64_2_mask(s):
     mask = cv2.imdecode(n, cv2.IMREAD_UNCHANGED)[:, :, 3].astype(bool)
     return mask
 
-#encode function
+encode function
 def mask_2_base64(mask):
     img_pil = Image.fromarray(np.array(mask, dtype=np.uint8))
     img_pil.putpalette([0,0,0,255,255,255])
@@ -204,9 +204,9 @@ Notebook with code example: [**supervisely_json_dataset_preparetion.ipynb**](htt
 
 - - -
 
-## **Training on Sagemaker**
+# **Training on Sagemaker**
 
-### Sagemaker overview
+## Sagemaker overview
 
 The following diagram shows how you train and deploy a model with Amazon SageMaker:
 
@@ -234,7 +234,7 @@ You have the following options for a training algorithm:
 
 We chose the latter approach, creating a docker image with the code and the requirements. This approch has the main advantage that with minimal modification to the code it can be runned as a standalone dockerfile. [#TODO espandere]
 
-### Using Sagemaker notebooks
+## Using Sagemaker notebooks
 
 An Amazon SageMaker notebook instance is a machine learning (ML) compute instance running the Jupyter Notebook App. SageMaker manages creating the instance and related resources. Use Jupyter notebooks in your notebook instance to prepare and process data, write code to train models, deploy models to SageMaker hosting, and test or validate your models. More examples can be found [here](https://docs.aws.amazon.com/sagemaker/latest/dg/howitworks-nbexamples.html).
 
@@ -245,7 +245,7 @@ If you already have the AWS cli configured on yout local machine you can run a n
 A difference between the notebook on sagemaker and the local one is the role, if you use sagemaker from within AWS the notebook can create a role and give himself access to all s3 buckets; on the other hand if you run the notebook locally you need to create a role and assign the appropriate permissions to it.
 [#TODO @massi dagli un'occhiata]
 
-### Start a docker image from sagemaker notebook
+## Start a taining job from sagemaker a notebook
 
 [#TODO dummy example 1, come si pusha su ECR etc]
 
@@ -261,16 +261,20 @@ ENV SAGEMAKER_PROGRAM "train.py"
 
 The `sagemaker-training` library is needed for sagemaker to interface within the docker; the `SAGEMAKER_PROGRAM` environment variable tell sagemaker wich script need to be executed for the training.
 
+### Push the Docker image to ECR
+
 Next you need to push it to an Amazon ECR repository, the docs for this step is [this](https://docs.aws.amazon.com/AmazonECR/latest/userguide/docker-push-ecr-image.html).
 
 If the push was successful it should appear on the ECR web page like this:
 
 ![ecr_example](assets/ECR_example.png)
 
+### start the training job
+
 Now we can launch a sagemaker notebook and start the docker we just pushed to ECR, we can either use the notebook on the AWS page or the local one.
 
 
-### Passing data to the container [#TODO da spostare piu' in basso]
+## Passing data to the container [#TODO da spostare piu' in basso]
 
 [#TODO <https://github.com/aws/sagemaker-training-toolkit/blob/master/ENVIRONMENT_VARIABLES.md#sm_user_args> e come sono costruite sul notebook le variabili hiperparameters e environment]
 
@@ -278,13 +282,13 @@ Now we can launch a sagemaker notebook and start the docker we just pushed to EC
 
 - - -
 
-## **Results**
+# **Results**
 
 - - -
 
-## **Useful links**
+# **Useful links**
 
-### AWS docs
+## AWS docs
 
 - [AWS cli configuration](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html)
   
@@ -294,7 +298,7 @@ Now we can launch a sagemaker notebook and start the docker we just pushed to EC
 
 - [EC2 instance types](https://aws.amazon.com/it/ec2/instance-types/)
 
-### Sagemaker docs
+## Sagemaker docs
 
 - [Sagemaker pricing](https://aws.amazon.com/sagemaker/pricing/)
 
@@ -318,7 +322,7 @@ Now we can launch a sagemaker notebook and start the docker we just pushed to EC
 
 - [Sagemaker environment variables](https://github.com/aws/sagemaker-training-toolkit/blob/master/ENVIRONMENT_VARIABLES.md)
 
-### Dataset
+## Dataset
 
 - [Supervisely format objects](https://docs.supervise.ly/data-organization/00_ann_format_navi/04_supervisely_format_objects)
 
@@ -330,11 +334,11 @@ Now we can launch a sagemaker notebook and start the docker we just pushed to EC
 
 - [configure kaggle apis](https://adityashrm21.github.io/Setting-Up-Kaggle/)
 
-### Docker
+## Docker
 
 - [Deep-learining-containers](https://github.com/aws/deep-learning-containers/blob/master/available_images.md)
 
-### Git reference
+## Git reference
 
 - [matterport/Mask_RCNN](https://github.com/matterport/Mask_RCNN)
 
@@ -346,15 +350,15 @@ Now we can launch a sagemaker notebook and start the docker we just pushed to EC
 
 - [shashankprasanna/sagemaker-spot-training](https://github.com/shashankprasanna/sagemaker-spot-training)
 
-### Useful articles
+## Useful articles
 
 - [guide to using Spot instances with Amazon SageMaker](https://towardsdatascience.com/a-quick-guide-to-using-spot-instances-with-amazon-sagemaker-b9cfb3a44a68)
 
-### Jupyter docs
+## Jupyter docs
 
 - [magic commands](https://ipython.readthedocs.io/en/stable/interactive/magics.html#)
 
-### Related papers
+## Related papers
 
 - [Mask R-CNN paper](https://arxiv.org/pdf/1703.06870.pdf)
 
