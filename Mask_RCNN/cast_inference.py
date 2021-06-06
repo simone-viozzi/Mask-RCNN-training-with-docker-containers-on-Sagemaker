@@ -36,6 +36,13 @@ CLASS_NAMES = {
 	4 : "disk"
 }
 
+CLASS_COLOR = {
+	1 : (0.0, 1.0, 1.0), # yellow
+	2 : (0.0, 1.0, 0.0), # green
+	3 : (0.0, 0.0, 1.0), # blue
+	4 : (1.0, 0.0, 0.0)  # red
+}
+
 class castConfig(Config):
 	"""
 	Extension of Config class of the framework maskrcnn (mrcnn/config.py),
@@ -60,10 +67,9 @@ class castInferenceConfig(castConfig):
 
 	# set the minimum detection confidence (used to prune out false
 	# positive detections)
-	DETECTION_MIN_CONFIDENCE = 0.9
+	DETECTION_MIN_CONFIDENCE = 0.6
 
-	NUM_CLASSES = 2
-
+	NUM_CLASSES = len(CLASS_NAMES) + 1
 
 if __name__ == "__main__":
 
@@ -73,9 +79,19 @@ if __name__ == "__main__":
 	
 	args = vars(ap.parse_args())
 	
-	#MODEL_PATH = "/home/massi/Progetti/Sagemaker_training_maskrcnn/Outputs/test-28/checkpoints/lesion/mask_rcnn_lesion_0040.h5"
-	checkpoints_path = "/home/massi/Progetti/Sagemaker_training_maskrcnn/Outputs/test-28/checkpoints/lesion/"
-	MODEL_PATH = "/home/massi/Progetti/Sagemaker_training_maskrcnn/Outputs/test-28/checkpoints/lesion/mask_rcnn_lesion_0040.h5"
+	################################################################
+	# DATASET TEST PATH
+	# put here your path to the test dataset for inferencevisualization
+	TEST_DATASET_PATH = ""
+	################################################################
+
+	################################################################
+	# MODEL PATH definitions, 
+	# put here your directoryes and your model name
+	checkpoints_path = "/home/massi/Progetti/repository_simone/Mask-RCNN-training-with-docker-containers-on-Sagemaker/logs/cast_test_1/checkpoints/"
+	MODEL = "mask_rcnn_cast_0039.h5"
+	MODEL_PATH = os.path.sep.join([checkpoints_path, MODEL])
+	################################################################
 
 	# initialize the inference configuration
 	config = castInferenceConfig()
@@ -85,6 +101,8 @@ if __name__ == "__main__":
 	
 	# load our trained Mask R-CNN
 	model.load_weights(MODEL_PATH, by_name=True) # , exclude=[ "mrcnn_class_logits", "mrcnn_bbox_fc", "mrcnn_bbox", "mrcnn_mask"]
+	
+	files = [f for f in os.listdir(checkpoints_dir) if f.endswith('.' + 'h5')]
 	
 	# load the input image, convert it from BGR to RGB channel
 	# ordering, and resize the image
@@ -96,15 +114,15 @@ if __name__ == "__main__":
 
 	# perform a forward pass of the network to obtain the results
 	r = model.detect([image], verbose=1)[0]
+	#print(r)
 
 	# loop over of the detected object's bounding boxes and
 	# masks, drawing each as we go along
 	for i in range(0, r["rois"].shape[0]):
 		mask = r["masks"][:, :, i]
-		image = visualize.apply_mask(image, mask,
-			(1.0, 0.0, 0.0), alpha=0.5)
-		image = visualize.draw_box(image, r["rois"][i],
-			(1.0, 0.0, 0.0))
+		image = visualize.apply_mask(image, mask, CLASS_COLOR[r["class_ids"][i]], alpha=0.5)
+		
+		image = visualize.draw_box(image, r["rois"][i], CLASS_COLOR[r["class_ids"][i]])
 
 	# convert the image back to BGR so we can use OpenCV's
 	# drawing functions
@@ -122,8 +140,7 @@ if __name__ == "__main__":
 		# draw the class label and score on the image
 		text = "{}: {:.4f}".format(label, score)
 		y = startY - 10 if startY - 10 > 10 else startY + 10
-		cv2.putText(image, text, (startX, y),
-			cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+		cv2.putText(image, text, (startX, y), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 0), 2)
 
 	# resize the image so it more easily fits on our screen
 	image = imutils.resize(image, width=512)

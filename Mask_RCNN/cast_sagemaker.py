@@ -169,7 +169,7 @@ class castDatasetBox(utils.Dataset):
 		return (masks.astype('bool'), class_idxs)
 
 if __name__ == "__main__":
-	#'''
+	'''
 	os.environ['SM_CHANNELS'] = '["dataset","model"]'
 	os.environ['SM_CHANNEL_DATASET'] = '/opt/ml/input/data/dataset'
 	os.environ['SM_CHANNEL_MODEL'] = '/opt/ml/input/data/model'   
@@ -181,7 +181,7 @@ if __name__ == "__main__":
 								{"epochs": 40, "layers": "all", "lr": 0.0001 }\
 							 ]\
 							}'
-	#'''
+	'''
 	# default env vars
 	user_defined_env_vars = {"checkpoints": "/opt/ml/checkpoints",
 							 "tensorboard": "/opt/ml/output/tensorboard"}
@@ -194,16 +194,16 @@ if __name__ == "__main__":
 	hyperparameters = json.loads(read_env_var('SM_HPS', {}))
 	
 	# TRAIN DATASET DEFINITIONS -------------------------------------------------------------
-	train_images_path = os.path.sep.join([dataset_path, "training", "img"])
-	train_masks_path = os.path.sep.join([dataset_path, "training", "ann"])
+	train_images_path = os.path.sep.join([dataset_path, "training/training", "img"])
+	train_masks_path = os.path.sep.join([dataset_path, "training/training", "ann"])
 	train_image_paths = sorted(list(paths.list_images(train_images_path)))
 	#train_mask_paths = sorted(list(paths.list_images(train_masks_path)))
 	train_ds_len = len(train_image_paths)
 	# ---------------------------------------------------------------------------------------
 	
 	# VALID DATASET DEFINITIONS -------------------------------------------------------------
-	val_images_path = os.path.sep.join([dataset_path, "validation", "img"])
-	val_masks_path = os.path.sep.join([dataset_path, "validation", "ann"])
+	val_images_path = os.path.sep.join([dataset_path, "validation/validation", "img"])
+	val_masks_path = os.path.sep.join([dataset_path, "validation/validation", "ann"])
 	val_image_paths = sorted(list(paths.list_images(val_images_path)))
 	#val_mask_paths = sorted(list(paths.list_images(val_masks_path)))
 	val_ds_len = len(val_image_paths)
@@ -267,7 +267,7 @@ if __name__ == "__main__":
 		
 		model.train(trainDataset, valDataset, epochs=train_seq[i]['epochs'], 
 			layers=train_seq[i]['layers'], learning_rate=train_seq[i]['lr'], augmentation=aug)
-			
+
 	''' 
 	 OLD FASHION
 	# train *just* the layer heads
