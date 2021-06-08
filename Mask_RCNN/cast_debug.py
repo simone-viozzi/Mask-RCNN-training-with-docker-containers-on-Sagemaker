@@ -341,112 +341,110 @@ if __name__ == "__main__":
 		
 		start = True
 		p_key = 0
-		#try:
-		
+
+		try:	
+			while(True):
 			
-		while(True):
-		
-			#(this is necessary to avoid Python kernel form crashing)
-			if not start:
-				p_key = cv2.waitKey(0)
-			
-			# if "q" is pressed close
-			if p_key == ord('q'):
-				# QUIT
-				raise "Quit"
-			
-			# if "w" is pressed 
-			elif p_key == ord('w') or start:
-				# swipe image
-
-				start = False
-				mask_idx = 0
-
-				tic = time.perf_counter()
-				train_data = next(train_generator)
-				toc = time.perf_counter()
-
-				print(f"Elapsed for generate new data: {(toc - tic)*1000:0.2f} ms")
-
-				#print(train_data[0]) # 7
-				#print(train_data[1]) # 7
-				#print(train_data[0][5][0])
-				#print(train_data[0][0].shape)
-				#print(train_data[0][6].shape)
+				#(this is necessary to avoid Python kernel form crashing)
+				if not start:
+					p_key = cv2.waitKey(0)
 				
-				# Using cv2.imshow() method 
-				# Displaying the image 
-				#im_rgb = cv2.cvtColor(train_data[0][0][0, :, :, :], cv2.COLOR_BGR2RGB)
-				im_rgb = train_data[0][0][0, :, :, :]
-				bitmap = train_data[0][6][0, :, :, mask_idx]
-				bboxs = train_data[0][5][0][mask_idx]
-
-				# DEBUG reconversion to original image from normalized 
-				for i in range(3):	
-					im_rgb[:,:,i] = im_rgb[:,:,i] + config.MEAN_PIXEL[i]
-
+				# if "q" is pressed close
+				if p_key == ord('q'):
+					# QUIT
+					raise "Quit"
 				
-				r_mask = np.zeros((im_rgb.shape[0], im_rgb.shape[1]), dtype='uint8')
+				# if "w" is pressed 
+				elif p_key == ord('w') or start:
+					# swipe image
 
-				#print(f'r_mask shape: {r_mask.shape}')
+					start = False
+					mask_idx = 0
 
-				if any(bbox != 0 for bbox in bboxs):
-					# Mask reconstruction
-					bbox_w = bboxs[3] - bboxs[1]
-					bbox_h = bboxs[2] - bboxs[0]
-					#print(f'bbox_w: {bbox_w}')
-					#print(f'bbox_h: {bbox_h}')
-					r_bitmap = cv2.resize(bitmap.astype('uint8'), (bbox_w, bbox_h), interpolation=cv2.INTER_NEAREST)
-					r_mask[bboxs[0]:bboxs[2], bboxs[1]:bboxs[3]] = r_bitmap*255.0
+					tic = time.perf_counter()
+					train_data = next(train_generator)
+					toc = time.perf_counter()
 
-				cv2.imshow("test", im_rgb.astype('uint8'))
-				cv2.imshow("mask", r_mask)
+					print(f"Elapsed for generate new data: {(toc - tic)*1000:0.2f} ms")
 
-			#if "e" is pressed
-			elif p_key == ord('e'):
-				# swipe mask
-				mask_idx += 1
+					#print(train_data[0]) # 7
+					#print(train_data[1]) # 7
+					#print(train_data[0][5][0])
+					#print(train_data[0][0].shape)
+					#print(train_data[0][6].shape)
+					
+					# Using cv2.imshow() method 
+					# Displaying the image 
+					#im_rgb = cv2.cvtColor(train_data[0][0][0, :, :, :], cv2.COLOR_BGR2RGB)
+					im_rgb = train_data[0][0][0, :, :, :]
+					bitmap = train_data[0][6][0, :, :, mask_idx]
+					bboxs = train_data[0][5][0][mask_idx]
 
-				bitmap = train_data[0][6][0, :, :, mask_idx]
-				bboxs = train_data[0][5][0][mask_idx]
+					# DEBUG reconversion to original image from normalized 
+					for i in range(3):	
+						im_rgb[:,:,i] = im_rgb[:,:,i] + config.MEAN_PIXEL[i]
 
-				if any(bbox != 0 for bbox in bboxs):
+					
+					r_mask = np.zeros((im_rgb.shape[0], im_rgb.shape[1]), dtype='uint8')
+
+					#print(f'r_mask shape: {r_mask.shape}')
+
+					if any(bbox != 0 for bbox in bboxs):
+						# Mask reconstruction
+						bbox_w = bboxs[3] - bboxs[1]
+						bbox_h = bboxs[2] - bboxs[0]
+						#print(f'bbox_w: {bbox_w}')
+						#print(f'bbox_h: {bbox_h}')
+						r_bitmap = cv2.resize(bitmap.astype('uint8'), (bbox_w, bbox_h), interpolation=cv2.INTER_NEAREST)
+						r_mask[bboxs[0]:bboxs[2], bboxs[1]:bboxs[3]] = r_bitmap*255.0
+
+					cv2.imshow("test", im_rgb.astype('uint8'))
+					cv2.imshow("mask", r_mask)
+
+				#if "e" is pressed
+				elif p_key == ord('e'):
+					# swipe mask
+					mask_idx += 1
+
+					bitmap = train_data[0][6][0, :, :, mask_idx]
+					bboxs = train_data[0][5][0][mask_idx]
+
+					if any(bbox != 0 for bbox in bboxs):
+						
+						# Mask reconstruction
+						r_mask = np.zeros((im_rgb.shape[0], im_rgb.shape[1]), dtype='uint8')
+
+						bbox_w = bboxs[3] - bboxs[1]
+						bbox_h = bboxs[2] - bboxs[0]
+						r_bitmap = cv2.resize(bitmap.astype('uint8'), (bbox_w, bbox_h), interpolation=cv2.INTER_NEAREST)
+						r_mask[bboxs[0]:bboxs[2], bboxs[1]:bboxs[3]] = r_bitmap*255.0
+
+						cv2.imshow("mask", r_mask)
+					else:
+						mask_idx -= 1
+
+				#if "r" is pressed
+				elif p_key == ord('r'):
+					# swipe mask
+
+					if mask_idx > 0:
+						mask_idx -= 1
+
+					bitmap = train_data[0][6][0, :, :, mask_idx]
+					bboxs = train_data[0][5][0][mask_idx]
 					
 					# Mask reconstruction
 					r_mask = np.zeros((im_rgb.shape[0], im_rgb.shape[1]), dtype='uint8')
-
 					bbox_w = bboxs[3] - bboxs[1]
 					bbox_h = bboxs[2] - bboxs[0]
 					r_bitmap = cv2.resize(bitmap.astype('uint8'), (bbox_w, bbox_h), interpolation=cv2.INTER_NEAREST)
 					r_mask[bboxs[0]:bboxs[2], bboxs[1]:bboxs[3]] = r_bitmap*255.0
 
 					cv2.imshow("mask", r_mask)
-				else:
-					mask_idx -= 1
 
-			#if "r" is pressed
-			elif p_key == ord('r'):
-				# swipe mask
-
-				if mask_idx > 0:
-					mask_idx -= 1
-
-				bitmap = train_data[0][6][0, :, :, mask_idx]
-				bboxs = train_data[0][5][0][mask_idx]
-				
-				# Mask reconstruction
-				r_mask = np.zeros((im_rgb.shape[0], im_rgb.shape[1]), dtype='uint8')
-				bbox_w = bboxs[3] - bboxs[1]
-				bbox_h = bboxs[2] - bboxs[0]
-				r_bitmap = cv2.resize(bitmap.astype('uint8'), (bbox_w, bbox_h), interpolation=cv2.INTER_NEAREST)
-				r_mask[bboxs[0]:bboxs[2], bboxs[1]:bboxs[3]] = r_bitmap*255.0
-
-				cv2.imshow("mask", r_mask)
-
-
-		#except Exception as e:
+		except Exception as e:
 			
-		#	print(e)
+			print(e)
 		
 		#closing all open windows 
 		cv2.destroyAllWindows() 

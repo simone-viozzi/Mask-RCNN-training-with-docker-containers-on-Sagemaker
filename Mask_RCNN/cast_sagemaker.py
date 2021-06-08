@@ -34,10 +34,15 @@ CLASS_NAMES = {
 	3 : "holes",
 	4 : "disk"
 }
+
 class castConfig(Config):
 	"""
 	Extension of Config class of the framework maskrcnn (mrcnn/config.py),
 	"""
+
+	MEAN_PIXEL = np.array([143.75, 143.75, 143.75])
+	USE_MINI_MASK = False
+
 	def __init__(self, **kwargs):
 		"""
 		Overriding of same config variables
@@ -45,6 +50,7 @@ class castConfig(Config):
 		"""
 		self.__dict__.update(kwargs)
 		super().__init__()
+
 class castDatasetBox(utils.Dataset):
 	"""
 	Extension of dataset utils.Dataset
@@ -60,6 +66,7 @@ class castDatasetBox(utils.Dataset):
 		self.masks_path = masks_path
 		self.classNames = classNames
 		self.width = width
+
 	def load_exampls(self):
 		"""
 		load the dataset from the disk into the dataset class

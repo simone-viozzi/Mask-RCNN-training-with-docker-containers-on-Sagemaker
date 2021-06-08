@@ -63,11 +63,12 @@ class aug_presets():
 
         aug = iaa.Sequential([
                     aug_presets.geometric_aug(sets=[0, 1]).some(n=(1, 2)),
-                    iaa.SomeOf((2, 4), [
+                    iaa.SomeOf((1, 4), [
                             aug_presets.geometric_aug(sets=2).maybe_one(),
-                            aug_presets.aritmetic_aug().maybe_some(p=0.95, n=(1, 3)),
-                            aug_presets.contrast_aug().maybe_some(p=0.95, n=(1, 3)),
-                            aug_presets.blend_aug().maybe_one(p=0.8),
+                            aug_presets.aritmetic_aug(sets=[0, 1]).maybe_some(p=0.95, n=(1, 2)),
+                            aug_presets.aritmetic_aug(sets=2).maybe_one(p=0.35),
+                            aug_presets.contrast_aug().maybe_some(p=0.8, n=(1, 3)),
+                            aug_presets.blend_aug(sets=[0, 1, 3]).maybe_one(p=0.8),
                             aug_presets.color_aug().maybe_one(p=0.8)
                         ],
                         random_order=True
@@ -163,16 +164,16 @@ class aug_presets():
                 ],
                 1 : [ 
                     iaa.OneOf([
-                            iaa.AdditiveGaussianNoise(scale=iap.Clip(iap.Poisson((-30*s, 30*s)), 0, 255), per_channel=True),
-                            iaa.Multiply((0.6*s, 1.4*s)),
-                            iaa.Multiply((0.6*s, 1.4*s), per_channel=True)
+                            iaa.AdditiveGaussianNoise(scale=iap.Clip(iap.Poisson((-20*s, 20*s)), 0, 255), per_channel=True),
+                            iaa.Multiply((0.8*s, 1.2*s)),
+                            iaa.Multiply((0.8*s, 1.2*s), per_channel=True)
                         ]
                     )
                 ],
                 2 : [
                     iaa.OneOf([
                             iaa.OneOf([
-                                    iaa.ImpulseNoise((0.025, 0.1)),
+                                    iaa.ImpulseNoise((0.015, 0.05)),
                                     iaa.Dropout(p=iap.Uniform((0.5, 0.7*s), 0.9*s))
                                 ]
                             ),
@@ -251,34 +252,33 @@ class aug_presets():
             s = severity
             self.aug_lists = {
                 0 : [
-                    iaa.SomeOf((1, 3), [
-                        iaa.Fliplr(0.8), # horizontaly flip with probability
-                        iaa.Flipud(0.8), # vertical flip with probability
-                        ],
-                        random_order=True
+                    iaa.Sequential([
+                        iaa.Fliplr(0.5), # horizontaly flip with probability
+                        iaa.Flipud(0.5), # vertical flip with probability
+                        ]
                     )
                 ],
                 1 : [ 
-                    iaa.Sometimes(p=0.9, 
+                    iaa.Sometimes(p=0.95, 
                         then_list=iaa.SomeOf((1, 2), [
-                                iaa.ScaleX((0.6, 1.4), mode="constant", cval= 0),
-                                iaa.ScaleY((0.6, 1.4), mode="constant", cval= 0),
-                                iaa.TranslateX(percent=(-0.2, 0.2), mode="constant", cval= 0),
-                                iaa.TranslateY(percent=(-0.2, 0.2), mode="constant", cval= 0),
-                                iaa.Rotate((-45, 45), mode="constant", cval= 0),
-                                iaa.ShearX((-15, 15), mode="constant", cval= 0),
-                                iaa.ShearY((-15, 15), mode="constant", cval= 0)
+                                iaa.ScaleX((0.9, 1.1), mode="constant", cval= 0),
+                                iaa.ScaleY((0.9, 1.1), mode="constant", cval= 0),
+                                iaa.TranslateX(percent=(-0.15, 0.15), mode="constant", cval= 0),
+                                iaa.TranslateY(percent=(-0.15, 0.15), mode="constant", cval= 0),
+                                iaa.Rotate((-30, 30), mode="constant", cval= 0),
+                                iaa.ShearX((-5, 5), mode="constant", cval= 0),
+                                iaa.ShearY((-5, 5), mode="constant", cval= 0)
                             ],
                             random_order=True
                         ),
-                        else_list=iaa.SomeOf((4, 7), [
-                                iaa.ScaleX((0.6, 1.4), mode="constant", cval= 0),
-                                iaa.ScaleY((0.6, 1.4), mode="constant", cval= 0),
-                                iaa.TranslateX(percent=(-0.2, 0.2), mode="constant", cval= 0),
-                                iaa.TranslateY(percent=(-0.2, 0.2), mode="constant", cval= 0),
+                        else_list=iaa.SomeOf((2, 4), [
+                                iaa.ScaleX((0.8, 1.1), mode="constant", cval= 0),
+                                iaa.ScaleY((0.8, 1.1), mode="constant", cval= 0),
+                                iaa.TranslateX(percent=(-0.1, 0.1), mode="constant", cval= 0),
+                                iaa.TranslateY(percent=(-0.1, 0.1), mode="constant", cval= 0),
                                 iaa.Rotate((-30, 30), mode="constant", cval= 0),
-                                iaa.ShearX((-15, 15), mode="constant", cval= 0),
-                                iaa.ShearY((-15, 15), mode="constant", cval= 0)
+                                iaa.ShearX((-10, 10), mode="constant", cval= 0),
+                                iaa.ShearY((-10, 10), mode="constant", cval= 0)
                             ],
                             random_order=True
                         )
@@ -287,8 +287,8 @@ class aug_presets():
                 2 : [
                     iaa.OneOf([
                         iaa.PiecewiseAffine(scale=(0.01, 0.05), mode="constant", cval= 0),
-                        iaa.ElasticTransformation(alpha=(2.0, 10.0), sigma=(0.1, 1.0), mode="constant", cval= 0),
-                        iaa.PerspectiveTransform(scale=(0.05, 0.20), mode="constant", cval= 0)
+                        #iaa.ElasticTransformation(alpha=(2.0, 10.0), sigma=(0.1, 1.0), mode="constant", cval= 0),
+                        iaa.PerspectiveTransform(scale=(0.08, 0.10), mode="constant", cval= 0)
                     ])
                 ]
             }
@@ -314,8 +314,8 @@ class aug_presets():
             self.aug_lists = {
                 0: [
                     iaa.OneOf([
-                        iaa.GammaContrast((0.3, 3.0)),
-                        iaa.GammaContrast((0.5, 2.0), per_channel=True)
+                        iaa.GammaContrast((0.6, 3.0)),
+                        iaa.GammaContrast((0.6, 2.0), per_channel=True)
                     ]
                     )
                 ],
@@ -358,7 +358,7 @@ class aug_presets():
     # docs: https://imgaug.readthedocs.io/en/latest/source/api_augmenters_color.html
     class color_aug(base_aug):
         def __init__(self, severity=1.0, sets=[0, 1, 2, 3]):
-
+            
             s = severity
             self.aug_lists = {
                 0: [
@@ -367,7 +367,7 @@ class aug_presets():
                         from_colorspace="HSV",
                         children=iaa.Grayscale(alpha=(0.0, 1.0))
                     )
-                ],
+                ],  
                 1: [
                     iaa.AddToHueAndSaturation((-50, 50), per_channel=True)
                 ],
@@ -390,27 +390,27 @@ class aug_presets():
 
             for list_ in sets:
                 self.aug_list += self.aug_lists[list_]
-            
+
             self.n_aug = len(self.aug_list)
 
     # BLEND ##############################################################################
     # overview: https://imgaug.readthedocs.io/en/latest/source/overview/blend.html
     # docs: https://imgaug.readthedocs.io/en/latest/source/api_augmenters_blend.html
     class blend_aug(base_aug):
-
+        
         def __init__(self, severity=1.0, sets=[0, 1, 2, 3]):
-
+            
             s = severity
             self.aug_lists = {
                 0: [
                     iaa.BlendAlphaRegularGrid(
                         nb_rows=(15, 40), 
                         nb_cols=(15, 40),
-                        foreground=iaa.MotionBlur(k=int(20*s))
+                        foreground=iaa.MotionBlur(k=(3, 5))
                     )
                 ],
                 1: [
-                    iaa.BlendAlphaFrequencyNoise(foreground=iaa.EdgeDetect(1.0),
+                    iaa.BlendAlphaFrequencyNoise(foreground=iaa.Add((int(-50*s), int(50*s)), per_channel=True),
                                                  iterations=(1, 3),
                                                  upscale_method='linear',
                                                  size_px_max=(2, 8),
@@ -445,13 +445,13 @@ class aug_presets():
     # overview: https://imgaug.readthedocs.io/en/latest/source/overview/blur.html
     # docs: https://imgaug.readthedocs.io/en/latest/source/api_augmenters_blur.html
     class blur_aug(base_aug):
-
+        
         def __init__(self, severity=1.0, sets=[0, 1, 2, 3]):
-
+            
             s = severity
             self.aug_lists = {
                 0: [
-                    iaa.GaussianBlur(sigma=(0, 5.0*s)),
+                    iaa.GaussianBlur(sigma=(0, 3.0*s)),
                 ],
                 1: [
                     iaa.OneOf([
@@ -461,10 +461,10 @@ class aug_presets():
                 ],
                 2: [
                     iaa.BilateralBlur(
-                            d=(4, int(15*s)), sigma_color=(20, 250), sigma_space=(20, 250))
+                        d=(4, int(15*s)), sigma_color=(20, 250), sigma_space=(20, 250))
                 ],
                 3: [
-                    iaa.MotionBlur(k=int(13*s))
+                    iaa.MotionBlur(k=int(10*s))
                 ]
             }
 
