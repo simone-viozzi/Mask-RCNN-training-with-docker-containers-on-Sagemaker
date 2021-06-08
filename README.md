@@ -196,9 +196,9 @@ The origin field contains two values, the x y cordintes of the top left angle of
 
 The function described override the load_mask() function present in the Mask R-CNN framework.
 
-![Mask preview](https://github.com/MassimilianoBiancucci/Mask-RCNN-training-with-docker-containers-on-Sagemaker/blob/main/assets/instance_estraction_from_json/extracted_masks_from_json_annotation.png?raw=true)
+![Mask preview](assets/instance_estraction_from_json/extracted_masks_from_json_annotation.png)
 
-Notebook with code example: [**supervisely_json_dataset_preparetion.ipynb**](https://github.com/MassimilianoBiancucci/Mask-RCNN-training-with-docker-containers-on-Sagemaker/blob/main/dataset_preparation_notebooks/supervisely_json_dataset_preparation.ipynb)
+Notebook with code example: [**supervisely_json_dataset_preparetion.ipynb**](dataset_preparation_notebooks/supervisely_json_dataset_preparation.ipynb)
 
 ![Mask preview](assets/augmentation_demo.jpg)
 
@@ -303,7 +303,7 @@ When the container conclude it's work the content of `/opt/output/data/` will be
 
 [#TODO dummy example 2]
 
-In the previous example we started the container passing some test data to it, in this example we will 
+In the previous example we started the container passing some test data to it, in this example we will extend this part.
 
 - - -
 
