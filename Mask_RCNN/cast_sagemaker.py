@@ -41,7 +41,29 @@ class castConfig(Config):
 	"""
 
 	MEAN_PIXEL = np.array([143.75, 143.75, 143.75])
-	USE_MINI_MASK = False
+
+	USE_MINI_MASK = True
+	MINI_MASK_SHAPE = (512, 512)
+
+
+	# Augmenters that are safe to apply to masks
+	# Some, such as Affine, have settings that make them unsafe, so always
+	# test your augmentation on masks
+	MASK_AUGMENTERS = ["Sequential", "SomeOf", "OneOf", "Sometimes", 
+						"Fliplr", "Flipud", "CropAndPad", "Affine", 
+						"PiecewiseAffine", "ScaleX", "ScaleY", 
+						"TranslateX", "TranslateY", "Rotate", 
+						"ShearX", "ShearY", "PiecewiseAffine",
+						"WithPolarWarping", "PerspectiveTransform"]
+
+
+	# SMALL MASKS DILATION PARAMETERS
+	DILATE_MASKS = True
+	DILATE_THERS_2 = 15000
+	DILATE_THERS_1 = 500
+	DILATE_ITERATIONS_2 = 10
+	DILATE_ITERATIONS_1 = 10
+	DILATE_KERNEL = np.ones((2, 2), 'uint8')
 
 	def __init__(self, **kwargs):
 		"""
@@ -57,7 +79,7 @@ class castDatasetBox(utils.Dataset):
 	that override the import functions for the images
 	and the preparation function for the annotation mask from json files.
 	"""
-	def __init__(self, imagePaths, masks_path, classNames, width=1024):
+	def __init__(self, imagePaths, masks_path, classNames, config, width=1024):
 		# call the parent constructor
 		super().__init__(self)
 		# store the image paths and class names along with the width
@@ -66,6 +88,7 @@ class castDatasetBox(utils.Dataset):
 		self.masks_path = masks_path
 		self.classNames = classNames
 		self.width = width
+		self.config = config
 
 	def load_exampls(self):
 		"""
@@ -83,6 +106,7 @@ class castDatasetBox(utils.Dataset):
 			
 			# add the image to the dataset
 			self.add_image("cast", image_id=filename, path=imagePath)
+
 	# defining supervisely functions
 	def base64_2_mask(self, s):
 		"""
@@ -95,6 +119,7 @@ class castDatasetBox(utils.Dataset):
 		#n = np.fromstring(z, np.uint8) #depecated
 		mask = cv2.imdecode(n, cv2.IMREAD_UNCHANGED)[:, :, 3].astype(bool)
 		return mask
+
 	def mask_2_base64(self, mask):
 		"""
 		Fuction for compression and serializzation of a bool matrix
@@ -106,6 +131,7 @@ class castDatasetBox(utils.Dataset):
 		img_pil.save(bytes_io, format='PNG', transparency=0, optimize=0)
 		bytes = bytes_io.getvalue()
 		return base64.b64encode(zlib.compress(bytes)).decode('utf-8')
+
 	# override
 	def load_image(self, imageID):
 		# grab the image path, load it, and convert it from BGR to
@@ -166,12 +192,19 @@ class castDatasetBox(utils.Dataset):
 			# NOTE: it's realy important at this point the use of cv2.INTER_NEAREST interpolation,
 			masks[:, :, i] = imutils.resize(mask_swap, width=self.width, inter=cv2.INTER_NEAREST)
 			
-			# overwrite 1px border with zeros (needed for optimal augmentation!!)
-			tick = 5 
-			masks[0:tick, 0:self.width, i] = 0
-			masks[0:self.width, 0:tick, i] = 0
-			masks[self.width-tick:self.width, 0:self.width, i] = 0
-			masks[0:self.width, self.width-tick:self.width, i] = 0
+			# if DILATE_MASKS it's true, too small object will be enlarged
+			if self.config.DILATE_MASKS:
+				if masks[:, :, i].sum() < self.config.DILATE_THERS_1:
+					masks[:, :, i] = cv2.dilate(masks[:, :, i], self.config.DILATE_KERNEL, iterations = self.config.DILATE_ITERATIONS_1)
+				elif masks[:, :, i].sum() < self.config.DILATE_THERS_2:
+					masks[:, :, i] = cv2.dilate(masks[:, :, i], self.config.DILATE_KERNEL, iterations = self.config.DILATE_ITERATIONS_2)
+
+			# overwrite 1px border with zeros (needed for augmentations with edge mode)
+			#tick = 5 
+			#masks[0:tick, 0:self.width, i] = 0
+			#masks[0:self.width, 0:tick, i] = 0
+			#masks[self.width-tick:self.width, 0:self.width, i] = 0
+			#masks[0:self.width, self.width-tick:self.width, i] = 0
 			
 		return (masks.astype('bool'), class_idxs)
 
@@ -183,6 +216,7 @@ if __name__ == "__main__":
 	os.environ['SM_HPS'] = '{"NAME": "cast", \
 							 "GPU_COUNT": 1, \
 							 "IMAGES_PER_GPU": 1,\
+							 "AUG_PREST": 1,
 							 "TRAIN_SEQ":[\
 								{"epochs": 20, "layers": "heads", "lr": 0.001},\
 								{"epochs": 40, "layers": "all", "lr": 0.0001 }\
@@ -201,31 +235,21 @@ if __name__ == "__main__":
 	hyperparameters = json.loads(read_env_var('SM_HPS', {}))
 	
 	# TRAIN DATASET DEFINITIONS -------------------------------------------------------------
-	train_images_path = os.path.sep.join([dataset_path, "training/training", "img"])
-	train_masks_path = os.path.sep.join([dataset_path, "training/training", "ann"])
+	train_images_path = os.path.sep.join([dataset_path, "training", "img"])
+	train_masks_path = os.path.sep.join([dataset_path, "training", "ann"])
 	train_image_paths = sorted(list(paths.list_images(train_images_path)))
 	#train_mask_paths = sorted(list(paths.list_images(train_masks_path)))
 	train_ds_len = len(train_image_paths)
 	# ---------------------------------------------------------------------------------------
 	
 	# VALID DATASET DEFINITIONS -------------------------------------------------------------
-	val_images_path = os.path.sep.join([dataset_path, "validation/validation", "img"])
-	val_masks_path = os.path.sep.join([dataset_path, "validation/validation", "ann"])
+	val_images_path = os.path.sep.join([dataset_path, "validation", "img"])
+	val_masks_path = os.path.sep.join([dataset_path, "validation", "ann"])
 	val_image_paths = sorted(list(paths.list_images(val_images_path)))
 	#val_mask_paths = sorted(list(paths.list_images(val_masks_path)))
 	val_ds_len = len(val_image_paths)
 	# ---------------------------------------------------------------------------------------
 	
-	# load the training dataset
-	trainDataset = castDatasetBox(train_image_paths, train_masks_path, CLASS_NAMES)
-	trainDataset.load_exampls()
-	trainDataset.prepare()
-	
-	# load the validation dataset
-	valDataset = castDatasetBox(val_image_paths, val_masks_path, CLASS_NAMES)
-	valDataset.load_exampls()
-	valDataset.prepare()
-
 	# da mettere negli iperparametri
 	GPU_COUNT = hyperparameters['GPU_COUNT']
 	IMAGES_PER_GPU = hyperparameters['IMAGES_PER_GPU']
@@ -237,6 +261,7 @@ if __name__ == "__main__":
 	
 	# number of classes (+1 for the background)
 	NUM_CLASSES = len(CLASS_NAMES) + 1
+	
 	config = castConfig(
 		STEPS_PER_EPOCH=STEPS_PER_EPOCH,
 		VALIDATION_STEPS=VALIDATION_STEPS,
@@ -244,10 +269,22 @@ if __name__ == "__main__":
 		**hyperparameters,
 	)
 
+	# load the training dataset
+	trainDataset = castDatasetBox(train_image_paths, train_masks_path, CLASS_NAMES, config)
+	trainDataset.load_exampls()
+	trainDataset.prepare()
+	
+	# load the validation dataset
+	valDataset = castDatasetBox(val_image_paths, val_masks_path, CLASS_NAMES, config)
+	valDataset.load_exampls()
+	valDataset.prepare()
+
 	#print all config varaibles
 	config.display()
 
-	aug = aug_presets.preset_1()
+	#aug = aug_presets.preset_1()
+	aug = aug_presets().presets_list[hyperparameters['AUG_PREST']]
+
 
 	# initialize the model and load the COCO weights so we can
 	# perform fine-tuning
