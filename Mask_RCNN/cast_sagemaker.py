@@ -295,6 +295,7 @@ if __name__ == "__main__":
 	try:
 		if os.listdir(model.checkpoints_dir_unique):
 			MODEL_PATH = last_checkpoint_path(model.checkpoints_dir_unique, config.NAME)
+			
 	except:
 		print('checkpoints folder empty...')
 	
