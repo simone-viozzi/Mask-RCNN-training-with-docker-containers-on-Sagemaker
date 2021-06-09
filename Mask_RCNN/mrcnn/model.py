@@ -2808,6 +2808,7 @@ class MaskRCNN():
         callbacks = [
             #keras.callbacks.TensorBoard(log_dir=self.tensorboard_dir_unique, histogram_freq=1, write_graph=True, write_images=False, update_freq='epoch'),
             keras.callbacks.TensorBoard(log_dir=self.tensorboard_dir_unique, histogram_freq=0, write_graph=True, write_grads=True, write_images=False),
+            # TODO vedere save_weights_only cazzo significa
             keras.callbacks.ModelCheckpoint(self.checkpoint_path, verbose=0, save_weights_only=True),
         ]
 
