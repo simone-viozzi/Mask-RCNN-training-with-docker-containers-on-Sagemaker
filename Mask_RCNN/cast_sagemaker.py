@@ -295,12 +295,13 @@ if __name__ == "__main__":
 	try:
 		if os.listdir(model.checkpoints_dir_unique):
 			MODEL_PATH = last_checkpoint_path(model.checkpoints_dir_unique, config.NAME)
-			
+
+			# load model
+			model.load_weights(MODEL_PATH, by_name=True)
 	except:
+		# load model
+		model.load_weights(MODEL_PATH, by_name=True, exclude=["mrcnn_class_logits", "mrcnn_bbox_fc", "mrcnn_bbox", "mrcnn_mask"])
 		print('checkpoints folder empty...')
-	
-	# load model
-	model.load_weights(MODEL_PATH, by_name=True, exclude=["mrcnn_class_logits", "mrcnn_bbox_fc", "mrcnn_bbox", "mrcnn_mask"])
 	
 	# execute train sequence
 	train_seq = hyperparameters['TRAIN_SEQ']
