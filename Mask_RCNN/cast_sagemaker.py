@@ -24,6 +24,7 @@ from PIL import Image
 import base64
 import zlib
 import json
+import sys
 import io
 
 # NOTE: used in the load_mask function
@@ -290,6 +291,15 @@ if __name__ == "__main__":
 	# perform fine-tuning
 	model = modellib.MaskRCNN(mode="training", config=config, checkpoints_dir=CHECKPOINTS_DIR, tensorboard_dir=TENSORBOARD_DIR)
 	
+	####################################################################################
+	# comment this section if you want to try to restore the training whene restarted after aws interruption
+	if os.path.isdir(model.checkpoints_dir_unique):
+		if os.listdir(model.checkpoints_dir_unique):
+			# the framework seems to have same bug in restoring training from checkpoint
+			# so if it's restored the training status is compromised with higher losses
+			sys.exit(1)
+	####################################################################################
+
 	# check if there is any checkpoint in the checkpoint folder
 	# if there are, load the last checkpoint
 	try:
@@ -298,6 +308,7 @@ if __name__ == "__main__":
 
 			# load model
 			model.load_weights(MODEL_PATH, by_name=True)
+
 	except:
 		# load model
 		model.load_weights(MODEL_PATH, by_name=True, exclude=["mrcnn_class_logits", "mrcnn_bbox_fc", "mrcnn_bbox", "mrcnn_mask"])
