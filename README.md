@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [**Index**](#index)
+- [**Overview**](#overview)
+- [**Project struscture**](#project-struscture)
+- [**Dataset**](#dataset)
+  - [**Original dataset**](#original-dataset)
+  - [**Our dataset**](#our-dataset)
+    - [**Mask images preparation**](#mask-images-preparation)
+    - [**Json annotations preparation**](#json-annotations-preparation)
+- [**Training on Sagemaker**](#training-on-sagemaker)
+  - [Sagemaker overview](#sagemaker-overview)
+  - [Using Sagemaker notebooks](#using-sagemaker-notebooks)
+  - [Start a taining job from sagemaker a notebook](#start-a-taining-job-from-sagemaker-a-notebook)
+    - [Preparation of the data on s3](#preparation-of-the-data-on-s3)
+    - [Push the Docker image to ECR](#push-the-docker-image-to-ecr)
+    - [start the training job](#start-the-training-job)
+    - [Output and tensprboard data](#output-and-tensprboard-data)
+  - [Passing more data to the container](#passing-more-data-to-the-container)
+- [**Results**](#results)
+- [**Useful links**](#useful-links)
+  - [AWS docs](#aws-docs)
+  - [Sagemaker docs](#sagemaker-docs)
+  - [Dataset](#dataset-1)
+  - [Docker](#docker)
+  - [Git reference](#git-reference)
+  - [Useful articles](#useful-articles)
+  - [Jupyter docs](#jupyter-docs)
+  - [Related papers](#related-papers)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
  **Mask R-CNN training with docker containers on Sagemaker**
 
 Mask R-CNN for metal casting defects detection and instance segmentation using Keras and TensorFlow.
