@@ -2239,7 +2239,7 @@ class MaskRCNN():
         tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
         assert mode in ['training', 'inference']
-
+        
         #'''
         from keras.backend.tensorflow_backend import set_session
         tf_config = tf.ConfigProto()
