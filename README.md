@@ -284,23 +284,7 @@ The default paths are:
 - `/opt/ml/output/data/`: the output data
 - `/opt/ml/output/tensorboard/`: the tensorboard
 - `/opt/ml/checkpoints/`: the checkpoints
-able of Contents
 
-    Index
-    Overview
-    Project struscture
-    Dataset
-        Original dataset
-        Our dataset
-            Mask images preparation
-            Json annotations preparation
-    Training on Sagemaker
-        Sagemaker overview
-        Using Sagemaker notebooks
-        Start a taining job from sagemaker a notebook
-            Preparation of the data on s3
-            Push the Docker image to ECR
-            start the training j
 ### Preparation of the data on s3
 
 The training job will download the model and the dataset from s3, so we need to make some bucket and upload what is needed.
@@ -323,7 +307,7 @@ Now we can launch a sagemaker notebook and start the docker we just pushed to EC
 
 The notebook we used in this  example is [this](Sagemaker_dummy_example/Dummy_spot_container_training.ipynb), more info is on the notebook.
 
-### Output and tensprboard data
+### Output and tensorboard data
 
 During the execution of the container sagemaker will upload to s3 everithing in the tensorboard and checkpoint folder nearly in real time. This can be used to view the tensorboard data as the training proceed; and to save chachpoints of the model in case the training whould be interrupted. In that case the checkpoint folder will be redownloaded onto the new container but it need to be manually cheched at the start of the script.
 
@@ -336,6 +320,10 @@ When the container conclude it's work the content of `/opt/output/data/` will be
 [#TODO dummy example 2]
 
 In the previous example we started the container passing some test data to it, in this example we will extend this part.
+
+There are two metod to pass data inside the script, the `hyperparameters` and `environment`. Both are python dict passesed as argument to `sagemaker.estimator.Estimator` in the notebook.
+
+In our case 
 
 - - -
 
