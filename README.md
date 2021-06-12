@@ -15,13 +15,19 @@ This project was possible thanks to the repository [matterport/Mask_RCNN](https:
     - [Our dataset](#our-dataset)
         - [Mask images preparation](#mask-images-preparation)
         - [Json annotations preparation](#json-annotations-preparation)
-1. [Sagemaker training](#sagemaker-training)
-    - [Dummy examples](#dummy-examples)
-    - [Training on gpus]()
+        - [Augmentation](#augmentation)
+1. [Training on sagemaker](#training-on-sagemaker)
+    - [Sagemaker overview](#sagemaker-overview)
+    - [Use sagemaker API](#Use-sagemaker-api)
+    - [Start a training job from sagemaker notebook](#start-a-training-job-from-sagemaker-notebook)
+      - []()
+      - []()
+      - []()
+      - []()
+1. [Training script]()
 1. [Results](#results)
     -[]()
     -[]()
-1. [Inference on local container](#inference-on-local-container)
 1. [Useful links](#useful-links)
 
 - - -
@@ -35,7 +41,59 @@ The core of the project was the matterport implementation of [Mask R-CNN](https:
 # **Project struscture**
 
 In this section is shown the structure of the project and how each example is organized.
-[#TODO]
+
+```plain
+.
+├── assets
+├── Augmentation_notebooks
+├── cudnn-10.0-linux-x64-v7.6.3.30
+|
+├── dataset_preparation_notebooks
+│   ├── obj_class_to_machine_color.json
+│   ├── sample_annotations
+│   ├── sample_imgs
+│   ├── sample_masks
+│   ├── supervisely_json_dataset_preparation.ipynb
+│   └── supervisely_mask_dataset_preparetion.ipynb
+|
+├── datasets
+│   ├── cast_dataset
+│   ├── cast_dataset_polish
+│   ├── casting product image data for quality inspection
+│   └── ISIC2018
+|
+├── Dockerfile_Local
+├── docs
+|
+├── Mask_RCNN
+│   ├── cast_debug.py
+│   ├── cast_inference.py
+│   ├── cast_sagemaker.py
+│   ├── lesions.py
+│   ├── lesions_sagemaker.py
+│   ├── LICENSE
+│   └── mrcnn
+|
+├── Model
+|   └──
+|
+├── Sagemaker_cast_example
+│   ├── cast_container_training.ipynb
+│   ├── Docker_image_tf_aws
+│   │   ├── build.sh
+│   │   ├── docker-compose.yml
+│   │   └── Dockerfile
+│   └── Docker_image_tf_std
+│       ├── build.sh
+│       ├── docker-compose.yml
+│       └── Dockerfile
+|
+├── Sagemaker_dummy_example
+├── Sagemaker_dummy_example_2
+├── Sagemaker_lesion_example
+└── tools
+
+```
 
 - - -
 
@@ -200,6 +258,24 @@ The function described override the load_mask() function present in the Mask R-C
 
 Notebook with code example: [**supervisely_json_dataset_preparetion.ipynb**](dataset_preparation_notebooks/supervisely_json_dataset_preparation.ipynb)
 
+### **Augmentation**
+
+As we have already said, our dataset it's made by 238 images, 18 of which used for the validation-set so to enable the model to learn and limit the overfitting is needed a good augmentation. We start from the library used on the matterport/Mask_RCNN project [**imgaug**](https://github.com/aleju/imgaug), a powerfull library with a lot of functions usable for ugment images.
+For chose the best functions for our task we have prepared some notebooks for test performance and result of imgaug functions, chosing the best parameters, below the links to this notebooks:
+
+- [**aritmetic_augmentaton_notebook.ipynb**](Augmentation_notebooks/aritmetic_augmentaton_notebook.ipynb)
+- [**blend_augmentation_notebook.ipynb**](Augmentation_notebooks/blend_augmentation_notebook.ipynb)
+- [**blur_augmentation_notebook.ipynb**](Augmentation_notebooks/blur_augmentation_notebook.ipynb)
+- [**collections_augmentation_notebook.ipynb**](Augmentation_notebooks/collections_augmentation_notebook.ipynb)
+- [**color_augentation_notebook.ipynb**](Augmentation_notebooks/color_augentation_notebook.ipynb)
+- [**contrast_augmentation_notebook.ipynb**](Augmentation_notebooks/convolutional_augmentation_notebook.ipynb)
+- [**convolutional_augmentation_notebook.ipynb**](Augmentation_notebooks/contrast_augmentation_notebook.ipynb)
+- [**geometric_augmentation_notebook.ipynb**](Augmentation_notebooks/geometric_augmentation_notebook.ipynb)
+- [**imgcorruptlike_augmentation_notebook.ipynb**](Augmentation_notebooks/imgcorruptlike_augmentation_notebook.ipynb)
+- [**pooling_augmentation_notebook.ipynb**](Augmentation_notebooks/pooling_augmentation_notebook.ipynb)
+
+So after tried it we realized three presets in the augmentation_presets.py file, with each preset use more aggressive functions or applay the same more heavily. In the image below are shown 15x15 images of the dataset augmented with the preset 3, the heaviest.
+
 ![Mask preview](assets/augmentation_demo.jpg)
 
 - - -
@@ -234,7 +310,7 @@ You have the following options for a training algorithm:
 
 We chose the latter approach, creating a docker image with the code and the requirements. This approch has the main advantage that with minimal modification to the code it can be runned as a standalone dockerfile. [#TODO espandere]
 
-## Using Sagemaker notebooks
+## Use Sagemaker API
 
 An Amazon SageMaker notebook instance is a machine learning (ML) compute instance running the Jupyter Notebook App. SageMaker manages creating the instance and related resources. Use Jupyter notebooks in your notebook instance to prepare and process data, write code to train models, deploy models to SageMaker hosting, and test or validate your models. More examples can be found [here](https://docs.aws.amazon.com/sagemaker/latest/dg/howitworks-nbexamples.html).
 
