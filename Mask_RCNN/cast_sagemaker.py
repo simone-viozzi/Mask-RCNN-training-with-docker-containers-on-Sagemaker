@@ -303,6 +303,7 @@ if __name__ == "__main__":
 		model.load_weights(MODEL_PATH, by_name=True, exclude=["mrcnn_class_logits", "mrcnn_bbox_fc", "mrcnn_bbox", "mrcnn_mask"])
 		print('checkpoints folder empty...')
 	
+	
 	# execute train sequence
 	train_seq = hyperparameters['TRAIN_SEQ']
 	print(train_seq)
