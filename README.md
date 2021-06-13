@@ -335,7 +335,9 @@ You have the following options for training an algorithm:
 We chose the latter approach, creating a custom docker image. This approch has the main advantage that the script could be runed simultaneously on many instances, with all the custom libraries and the environment configuration that your particular project need.
 Another advantage of using docker images in sagemaker is the hyperparameters, parameters that can be passed to the training instance in the sagemaker api manager script, whene you launch the training job, so you can easly lunch several training with the same starting image and pass to each one different hyperparameters, like augmentation, learining rate or maybe relative to the network structure, the limit is what you can do in your script.
 
-## Use Sagemaker API
+- - -
+
+## Sagemaker API
 
 Amazon SageMaker provides several APIs and SDKs to manage training jobs and deploy algorithms, the complete list can be found [here](https://docs.aws.amazon.com/sagemaker/latest/dg/api-and-sdk-reference.html). In our case we chose the suggested method, in this project we use **Amazon SageMaker Python SDK** that can be installed simply though pip, with the below command:
 
@@ -361,7 +363,9 @@ role = get_execution_role()
 
 If you want to use Sagemaker API in local you need to create the role by yourself or getting the role created in a precedent notebook instance execution, note that in the process of creation of th notebook is asked if you want use s3 buckets that not necessary start with the word 'sagemaker', i sugest to you to click the checkbox so you can load data from other buckets. Once you get the role arn you can put it in the script like a variabe and pass it to the api whene needed. Another thing that is needed before start using the API is setting up the AWS cli, until you don't configure the aws cli the api don't have a secure way to control your AWS account, make sure that your user have the permission for using sagemaker otherwise you'll run into same error, if you don't have the cli installed or don't know how to do it, follow this instructions: [setting up the AWS cli](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html).
 
-## Start a taining job from sagemaker a notebook
+- - -
+
+## Start a training job from SageMaker API
 
 First let's create a simple docker image like [this](Sagemaker_dummy_example/Dockerfile), the importante step are:
 
