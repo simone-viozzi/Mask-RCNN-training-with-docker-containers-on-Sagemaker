@@ -31,6 +31,8 @@ This project was possible thanks to the repository [matterport/Mask_RCNN](https:
   - [Passing more data to the container](#passing-more-data-to-the-container)
     - [hyperparameters](#hyperparameters)
     - [Environment](#environment)
+  - [Craking down estimator parameters](#craking-down-estimator-parameters)
+  - [metodi](#metodi)
 - [**Results**](#results)
 - [**Useful links**](#useful-links)
   - [AWS docs](#aws-docs)
