@@ -32,7 +32,7 @@ This project was possible thanks to the repository [matterport/Mask_RCNN](https:
     - [hyperparameters](#hyperparameters)
     - [Environment](#environment)
   - [Estimator parameters explained](#estimator-parameters-explained)
-    - [metodi](#metodi)
+    - [The fit method](#the-fit-method)
 - [**Results**](#results)
 - [**Useful links**](#useful-links)
   - [AWS docs](#aws-docs)
