@@ -406,7 +406,9 @@ hyperparameters = {
         {\"epochs\": 150, \"layers\": \"all\", \"lr\": 0.005 }\
     ]"
 }
+
 [...]
+
 training_test = sagemaker.estimator.Estimator(
     [...]
     hyperparameters = hyperparameters,
@@ -439,6 +441,7 @@ We also used the `environment` parameter to pass the paths of the checkpoints an
 ```python
 user_defined_env_vars = {"checkpoints": "/opt/ml/checkpoints",
                         "tensorboard": "/opt/ml/output/tensorboard"}
+
 training_test = sagemaker.estimator.Estimator(
     [...]
     environment = user_defined_env_vars,
@@ -451,7 +454,7 @@ And on the train script we read those as environment variables:
 ```python
 # default values
 user_defined_env_vars = {"checkpoints": "/opt/ml/checkpoints",
-                         "tensorboard": "/opt/ml/output/tensorboard"}
+                          "tensorboard": "/opt/ml/output/tensorboard"}
 
 CHECKPOINTS_DIR = read_env_var("checkpoints", user_defined_env_vars["checkpoints"])
 TENSORBOARD_DIR = read_env_var("tensorboard", user_defined_env_vars["tensorboard"])
