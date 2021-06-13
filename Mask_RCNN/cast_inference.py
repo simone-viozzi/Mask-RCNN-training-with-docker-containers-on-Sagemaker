@@ -48,7 +48,7 @@ TEST_DATASET_PATH = "/home/massi/Dataset/cast_dataset_not_labled_part/remaining_
 ################################################################
 # MODEL PATH definitions, 
 # put here your directoryes and your model name
-checkpoints_path = "/home/massi/Progetti/repository_simone/Mask-RCNN-training-with-docker-containers-on-Sagemaker/logs/cast_test_polish_2/checkpoints"
+checkpoints_path = "/home/massi/Progetti/repository_simone/Mask-RCNN-training-with-docker-containers-on-Sagemaker/logs/cast_test_polish_5/checkpoints"
 MODEL = "mask_rcnn_cast_0150.h5"
 MODEL_PATH = os.path.sep.join([checkpoints_path, MODEL])
 ################################################################
