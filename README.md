@@ -378,6 +378,7 @@ The path structure of sagemaker is described [here](https://docs.aws.amazon.com/
 The training job will download the model and the dataset from s3, so we need to make some bucket and upload what is needed.
 
 In our case we made two buckets, one for the datasets and one for the pretrained model:
+
 ![s3_buckets](assets/s3_buckets.png)
 
 We will nees the uri of those bucket later, they will look like:
