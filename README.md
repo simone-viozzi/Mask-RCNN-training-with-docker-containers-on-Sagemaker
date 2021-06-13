@@ -27,7 +27,7 @@ This project was possible thanks to the repository [matterport/Mask_RCNN](https:
     - [Preparation of the data on s3](#preparation-of-the-data-on-s3)
     - [Push the Docker image to ECR](#push-the-docker-image-to-ecr)
     - [start the training job](#start-the-training-job)
-    - [Output and tensprboard data](#output-and-tensprboard-data)
+    - [Output and tensorboard data](#output-and-tensorboard-data)
   - [Passing more data to the container](#passing-more-data-to-the-container)
 - [**Results**](#results)
 - [**Useful links**](#useful-links)
