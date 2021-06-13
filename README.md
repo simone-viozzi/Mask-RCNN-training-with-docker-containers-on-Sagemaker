@@ -23,7 +23,7 @@ This project was possible thanks to the repository [matterport/Mask_RCNN](https:
 - [**Training on Sagemaker**](#training-on-sagemaker)
   - [Sagemaker overview](#sagemaker-overview)
   - [Sagemaker API](#sagemaker-api)
-  - [Start a training job from SageMaker API](#start-a-training-job-from-sagemaker-api)
+  - [Taraining job on SageMaker](#taraining-job-on-sagemaker)
     - [Preparation of the data on s3](#preparation-of-the-data-on-s3)
     - [Push the Docker image to ECR](#push-the-docker-image-to-ecr)
     - [start the training job](#start-the-training-job)
