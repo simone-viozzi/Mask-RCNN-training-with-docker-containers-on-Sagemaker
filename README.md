@@ -22,8 +22,8 @@ This project was possible thanks to the repository [matterport/Mask_RCNN](https:
     - [**Augmentation**](#augmentation)
 - [**Training on Sagemaker**](#training-on-sagemaker)
   - [Sagemaker overview](#sagemaker-overview)
-  - [Use Sagemaker API](#use-sagemaker-api)
-  - [Start a taining job from sagemaker a notebook](#start-a-taining-job-from-sagemaker-a-notebook)
+  - [Sagemaker API](#sagemaker-api)
+  - [Start a training job from SageMaker API](#start-a-training-job-from-sagemaker-api)
     - [Preparation of the data on s3](#preparation-of-the-data-on-s3)
     - [Push the Docker image to ECR](#push-the-docker-image-to-ecr)
     - [start the training job](#start-the-training-job)
@@ -80,17 +80,13 @@ In this section is shown the structure of the project and what is the content of
 │   ├── LICENSE
 │   └── mrcnn
 ├── Model
-|   └──
+|   └── 
 ├── Sagemaker_cast_example
 │   ├── cast_container_training.ipynb
-│   ├── Docker_image_tf_aws
-│   │   ├── build.sh
-│   │   ├── docker-compose.yml
-│   │   └── Dockerfile
-│   └── Docker_image_tf_std
-│       ├── build.sh
-│       ├── docker-compose.yml
-│       └── Dockerfile
+│   └── Docker_image_tf_aws
+│       ├── build.sh
+│       ├── docker-compose.yml
+│       └── Dockerfile
 ├── Sagemaker_dummy_example
 ├── Sagemaker_dummy_example_2
 ├── Sagemaker_lesion_example
@@ -322,34 +318,54 @@ To train a model in SageMaker, you create a training job. The training job inclu
 
 - The URL of the Amazon Simple Storage Service (Amazon S3) bucket where you've stored the training data.
 
-- The compute resources that you want SageMaker to use for model training. Compute resources are ML compute instances that are managed by SageMaker.
+- The compute resources that SageMaker have to use for model training. Compute resources are ec2 instances that are managed by SageMaker.
 
-- The URL of the S3 bucket where you want to store the output of the job.
+- The URLs of the S3 buckets where you want to store the output of the job, and where you want to load the input data.
 
-- The Amazon Elastic Container Registry path where the training code is stored.
+- The Amazon Elastic Container Registry repository where the docker image is stored.
 
-You have the following options for a training algorithm:
+You have the following options for training an algorithm:
 
 - **Use an algorithm provided by SageMaker** — SageMaker provides training algorithms. If one of these meets your needs, it's a great out-of-the-box solution for quick model training.
 
 - **Submit custom code to train with deep learning frameworks** — You can submit custom Python code that uses TensorFlow, PyTorch, or Apache MXNet for model training.
 
-- **Use your own custom algorithms** — Put your code together as a Docker image and specify the registry path of the image in a SageMaker `CreateTrainingJob` API call.
+- **Use your own custom algorithms** — Put your code into a Docker image and specify the elastic container registry repository of the image in a SageMaker `CreateTrainingJob` API call.
 
-We chose the latter approach, creating a docker image with the code and the requirements. This approch has the main advantage that with minimal modification to the code it can be runned as a standalone dockerfile. [#TODO espandere]
+We chose the latter approach, creating a custom docker image. This approch has the main advantage that the script could be runed simultaneously on many instances, with all the custom libraries and the environment configuration that your particular project need.
+Another advantage of using docker images in sagemaker is the hyperparameters, parameters that can be passed to the training instance in the sagemaker api manager script, whene you launch the training job, so you can easly lunch several training with the same starting image and pass to each one different hyperparameters, like augmentation, learining rate or maybe relative to the network structure, the limit is what you can do in your script.
 
-## Use Sagemaker API
+- - -
 
-An Amazon SageMaker notebook instance is a machine learning (ML) compute instance running the Jupyter Notebook App. SageMaker manages creating the instance and related resources. Use Jupyter notebooks in your notebook instance to prepare and process data, write code to train models, deploy models to SageMaker hosting, and test or validate your models. More examples can be found [here](https://docs.aws.amazon.com/sagemaker/latest/dg/howitworks-nbexamples.html).
+## Sagemaker API
 
-The main advantage of using the notebook on Sagemaker is the preconfigured AWS cli, you can easily access resouces on S3 or download from internet at high speed.
+Amazon SageMaker provides several APIs and SDKs to manage training jobs and deploy algorithms, the complete list can be found [here](https://docs.aws.amazon.com/sagemaker/latest/dg/api-and-sdk-reference.html). In our case we chose the suggested method, in this project we use **Amazon SageMaker Python SDK** that can be installed simply though pip, with the below command:
 
-If you already have the AWS cli configured on yout local machine you can run a notebook locally and remotely lauch the training on an ASW machine. To install the sagemaker sdk just  run `pip install -U sagemaker`, more info [here](https://aws.amazon.com/blogs/machine-learning/use-the-amazon-sagemaker-local-mode-to-train-on-your-notebook-instance/).
+```bash
+pip install -U sagemaker # -U is for user installation
+```
 
-A difference between the notebook on sagemaker and the local one is the role, if you use sagemaker from within AWS the notebook can create a role and give himself access to all s3 buckets; on the other hand if you run the notebook locally you need to create a role and assign the appropriate permissions to it.
-[#TODO @massi dagli un'occhiata]
+The suggested way to use the Sagemaker API is in local mode so you don't need to pay for use the SageMaker notebook but at the same time it give you a lot of ready examples and simplify same configuration steps that you need for make it work, so it's good for make practice but i sugest you to start using same local notebook or run api scripts in local as soon  as possible.
 
-## Start a taining job from sagemaker a notebook
+An Amazon SageMaker notebook instance is a machine learning (ML) compute instance running the Jupyter Notebook App. SageMaker manage the instance and related resources, so you can use Jupyter notebooks in your notebook instance to prepare and process data, write code to train models, deploy models to SageMaker hosting, and test or validate your models, all the things that can be done with the SageMaker API. In the SageMaker notebooks you can find several examples as shown [here](https://docs.aws.amazon.com/sagemaker/latest/dg/howitworks-nbexamples.html).
+
+The main advantage of using the notebooks instances on Sagemaker is the preconfigured AWS cli, you can easily access resouces on S3 or download from internet at high speed, consider that same instances have several gigabits of bandwidth, and the assisted procedure of role creation, It's important to note that for use the sagemaker API is necessary to pass to same methods the role, in the notebook instance you can retrive it using this method:
+
+```python
+# notebook instance method
+from sagemaker import get_execution_role
+
+role = get_execution_role()
+
+# role is a string with the notebook role arn like this:
+# 'arn:aws:iam::<your aws account id>:role/service-role/AmazonSageMaker-ExecutionRole-20210522T125188'
+```
+
+If you want to use Sagemaker API in local you need to create the role by yourself or getting the role created in a precedent notebook instance execution, note that in the process of creation of th notebook is asked if you want use s3 buckets that not necessary start with the word 'sagemaker', i sugest to you to click the checkbox so you can load data from other buckets. Once you get the role arn you can put it in the script like a variabe and pass it to the api whene needed. Another thing that is needed before start using the API is setting up the AWS cli, until you don't configure the aws cli the api don't have a secure way to control your AWS account, make sure that your user have the permission for using sagemaker otherwise you'll run into same error, if you don't have the cli installed or don't know how to do it, follow this instructions: [setting up the AWS cli](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html).
+
+- - -
+
+## Start a training job from SageMaker API
 
 First let's create a simple docker image like [this](Sagemaker_dummy_example/Dockerfile), the importante step are:
 
