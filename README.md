@@ -56,7 +56,7 @@ In this project our target was to train the Mask_RCNN matterport implementation 
 
 In this section is shown the structure of the project and what is the content of each folder, below there is a littele description of each one.
 
-```plain
+```text
 .
 ├── assets
 ├── Augmentation_notebooks
