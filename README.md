@@ -504,7 +504,41 @@ estimator = Estimator([...])
 la sinopsi e':
 
 ```python
-class sagemaker.estimator.Estimator(image_uri, role, instance_count=None, instance_type=None, volume_size=30, volume_kms_key=None, max_run=86400, input_mode='File', output_path=None, output_kms_key=None, base_job_name=None, sagemaker_session=None, hyperparameters=None, tags=None, subnets=None, security_group_ids=None, model_uri=None, model_channel_name='model', metric_definitions=None, encrypt_inter_container_traffic=False, use_spot_instances=False, max_wait=None, checkpoint_s3_uri=None, checkpoint_local_path=None, enable_network_isolation=False, rules=None, debugger_hook_config=None, tensorboard_output_config=None, enable_sagemaker_metrics=None, profiler_config=None, disable_profiler=False, environment=None, max_retry_attempts=None, **kwargs)
+class sagemaker.estimator.Estimator(
+              image_uri, 
+              role, 
+              instance_count=None, 
+              instance_type=None, 
+              volume_size=30, 
+              volume_kms_key=None, 
+              max_run=86400, 
+              input_mode='File', 
+              output_path=None, 
+              output_kms_key=None, 
+              base_job_name=None, 
+              sagemaker_session=None, 
+              hyperparameters=None, 
+              tags=None, 
+              subnets=None, 
+              security_group_ids=None, 
+              model_uri=None, 
+              model_channel_name='model', 
+              metric_definitions=None,
+              encrypt_inter_container_traffic=False, 
+              use_spot_instances=False, 
+              max_wait=None, 
+              checkpoint_s3_uri=None, 
+              checkpoint_local_path=None, 
+              enable_network_isolation=False, 
+              rules=None, 
+              debugger_hook_config=None, 
+              tensorboard_output_config=None, 
+              enable_sagemaker_metrics=None, 
+              profiler_config=None, 
+              disable_profiler=False, 
+              environment=None, 
+              max_retry_attempts=None, 
+              **kwargs)
 ```
 
 i parametri sono:
