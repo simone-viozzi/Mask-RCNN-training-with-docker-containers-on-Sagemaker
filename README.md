@@ -27,8 +27,10 @@ This project was possible thanks to the repository [matterport/Mask_RCNN](https:
     - [Preparation of the data on s3](#preparation-of-the-data-on-s3)
     - [Push the Docker image to ECR](#push-the-docker-image-to-ecr)
     - [start the training job](#start-the-training-job)
-    - [Output and tensprboard data](#output-and-tensprboard-data)
+    - [Output and tensorboard data](#output-and-tensorboard-data)
   - [Passing more data to the container](#passing-more-data-to-the-container)
+    - [hyperparameters](#hyperparameters)
+    - [Environment](#environment)
 - [**Results**](#results)
 - [**Useful links**](#useful-links)
   - [AWS docs](#aws-docs)
@@ -347,8 +349,6 @@ A difference between the notebook on sagemaker and the local one is the role, if
 
 ## Start a taining job from sagemaker a notebook
 
-[#TODO dummy example 1, come si pusha su ECR etc]
-
 First let's create a simple docker image like [this](Sagemaker_dummy_example/Dockerfile), the importante step are:
 
 ```Dockerfile
@@ -369,11 +369,21 @@ The default paths are:
 - `/opt/ml/output/tensorboard/`: the tensorboard
 - `/opt/ml/checkpoints/`: the checkpoints
 
+The path structure of sagemaker is described [here](https://docs.aws.amazon.com/sagemaker/latest/dg/amazon-sagemaker-toolkits.html).
+
 ### Preparation of the data on s3
 
 The training job will download the model and the dataset from s3, so we need to make some bucket and upload what is needed.
 
-[#TODO need fixss]
+In our case we made two buckets, one for the datasets and one for the pretrained model:
+![s3_buckets](assets/s3_buckets.png)
+
+We will nees the uri of those bucket later, they will look like:
+
+```bash
+dataset_bucket = "s3://datsetsbucket/{path_to_dataset}/"
+model_bucket = 's3://cermodelbucket'
+```
 
 ### Push the Docker image to ECR
 
@@ -391,7 +401,9 @@ Now we can launch a sagemaker notebook and start the docker we just pushed to EC
 
 The notebook we used in this  example is [this](Sagemaker_dummy_example/Dummy_spot_container_training.ipynb), more info is on the notebook.
 
-### Output and tensprboard data
+The documentation of `sagemaker.estimator.Estimator` will be extesively treated on a following sectio [TODO link to section]
+
+### Output and tensorboard data
 
 During the execution of the container sagemaker will upload to s3 everithing in the tensorboard and checkpoint folder nearly in real time. This can be used to view the tensorboard data as the training proceed; and to save chachpoints of the model in case the training whould be interrupted. In that case the checkpoint folder will be redownloaded onto the new container but it need to be manually cheched at the start of the script.
 
@@ -404,6 +416,82 @@ When the container conclude it's work the content of `/opt/output/data/` will be
 [#TODO dummy example 2]
 
 In the previous example we started the container passing some test data to it, in this example we will extend this part.
+
+There are two metod to pass data inside the script, the `hyperparameters` and `environment`. Both are python dict passesed as argument to `sagemaker.estimator.Estimator` in the notebook.
+
+### hyperparameters
+
+In our case the hiperparameters on the notebook side are:
+
+```python
+hyperparameters = {
+    "NAME": "cast", 
+    "GPU_COUNT": 1, 
+    "IMAGES_PER_GPU": 1,
+    "AUG_PREST": 1,
+    "TRAIN_SEQ": "[\
+        {\"epochs\": 150, \"layers\": \"all\", \"lr\": 0.005 }\
+    ]"
+}
+
+[...]
+
+training_test = sagemaker.estimator.Estimator(
+    [...]
+    hyperparameters = hyperparameters,
+    [...]
+)
+```
+
+Tha syntax in the dict on the notebook is a bit tricky and prone to error because that dict will be converted to strings and than to json, be sure to do a little try and error.
+
+In the train script we can retrieve those from the environment variable `SM_HPS`:
+
+```python
+hyperparameters = json.loads(read_env_var('SM_HPS', {}))
+```
+
+That lead to:
+
+```python
+>>> print(type(hyperparameters))
+<class 'dict'>
+
+>>> print(hyperparameters)
+{'NAME': 'cast', 'GPU_COUNT': 1, 'IMAGES_PER_GPU': 1, 'AUG_PREST': 1, 'TRAIN_SEQ': [{'epochs': 150, 'layers': 'all', 'lr': 0.005}]}
+```
+
+This way we can pass every config (and more) as hyperparameters.
+
+### Environment
+
+We also used the `environment` parameter to pass the paths of the checkpoints and tensorboard data, on the notebook side we have:
+
+```python
+user_defined_env_vars = {"checkpoints": "/opt/ml/checkpoints",
+                        "tensorboard": "/opt/ml/output/tensorboard"}
+
+training_test = sagemaker.estimator.Estimator(
+    [...]
+    environment = user_defined_env_vars,
+    [...]
+)
+```
+
+And on the train script we read those as environment variables:
+
+```python
+# default values
+user_defined_env_vars = {"checkpoints": "/opt/ml/checkpoints",
+                         "tensorboard": "/opt/ml/output/tensorboard"}
+
+CHECKPOINTS_DIR = read_env_var("checkpoints", user_defined_env_vars["checkpoints"])
+TENSORBOARD_DIR = read_env_var("tensorboard", user_defined_env_vars["tensorboard"])
+```
+
+The default values are coherent with the default paths used by sagemaker. [#TODO link to docs]
+
+
 
 - - -
 
