@@ -1,4 +1,4 @@
-**Mask R-CNN training with docker containers on Sagemaker**
+# **Mask R-CNN training with docker containers on Sagemaker**
 
 Mask R-CNN for metal casting defects detection and instance segmentation using Keras and TensorFlow.
 
@@ -29,6 +29,8 @@ This project was possible thanks to the repository [matterport/Mask_RCNN](https:
     - [start the training job](#start-the-training-job)
     - [Output and tensorboard data](#output-and-tensorboard-data)
   - [Passing more data to the container](#passing-more-data-to-the-container)
+    - [hyperparameters](#hyperparameters)
+    - [Environment](#environment)
 - [**Results**](#results)
 - [**Useful links**](#useful-links)
   - [AWS docs](#aws-docs)
@@ -47,18 +49,18 @@ This project was possible thanks to the repository [matterport/Mask_RCNN](https:
 
 The core of the project was the matterport implementation of [Mask R-CNN](https://arxiv.org/pdf/1703.06870.pdf) an architecture proposed by Ross Girshick et al., revisited using [Feature pyramid network](https://arxiv.org/pdf/1612.03144.pdf) as final stage and using [Resnet101](https://arxiv.org/pdf/1512.03385.pdf) as backbone.
 
+In this project our target was to train the Mask_RCNN matterport implementation on our dataset using the sagemaker service of AWS. Our work in this way was principaly to prepare the dataset, the functions that adapt the dataset annotation with supervisely structure to the the input format of the framework, and the script that permit to lunch the training process on a docker container, with the specific needs of sagemaker. 
 - - -
 
 # **Project struscture**
 
-In this section is shown the structure of the project and how each example is organized.
+In this section is shown the structure of the project and what is the content of each folder, below there is a littele description of each one.
 
-```plain
+```text
 .
 ├── assets
 ├── Augmentation_notebooks
 ├── cudnn-10.0-linux-x64-v7.6.3.30
-|
 ├── dataset_preparation_notebooks
 │   ├── obj_class_to_machine_color.json
 │   ├── sample_annotations
@@ -66,16 +68,7 @@ In this section is shown the structure of the project and how each example is or
 │   ├── sample_masks
 │   ├── supervisely_json_dataset_preparation.ipynb
 │   └── supervisely_mask_dataset_preparetion.ipynb
-|
 ├── datasets
-│   ├── cast_dataset
-│   ├── cast_dataset_polish
-│   ├── casting product image data for quality inspection
-│   └── ISIC2018
-|
-├── Dockerfile_Local
-├── docs
-|
 ├── Mask_RCNN
 │   ├── cast_debug.py
 │   ├── cast_inference.py
@@ -84,10 +77,8 @@ In this section is shown the structure of the project and how each example is or
 │   ├── lesions_sagemaker.py
 │   ├── LICENSE
 │   └── mrcnn
-|
 ├── Model
 |   └──
-|
 ├── Sagemaker_cast_example
 │   ├── cast_container_training.ipynb
 │   ├── Docker_image_tf_aws
@@ -98,13 +89,37 @@ In this section is shown the structure of the project and how each example is or
 │       ├── build.sh
 │       ├── docker-compose.yml
 │       └── Dockerfile
-|
 ├── Sagemaker_dummy_example
 ├── Sagemaker_dummy_example_2
 ├── Sagemaker_lesion_example
 └── tools
 
 ```
+
+- **assets:** folder that contain readme images.
+
+- **Augmentation_notebooks:** collection of notebooks for imgaug functions testing, with notebooks diveded by type.
+
+- **cudnn-10.0-linux-x64-v7.6.3.30:** Folder in witch you should put cudnn files following the readme inside, this is used during the docker images builds.  
+
+- **dataset_preparation_notebooks:** In this folder there are same image of the dataset with annotations, and there are two notebooks with explained two way to import the dataset, and prepare it for maskrcnn.
+
+- **datasets:** In thi folder are presents same dataset that we use for test, one of is the main dataset the only dataset physically present.
+
+- **Mask_RCNN:** This is the main folder of the project containing all the scripts for various purpose from inference on the model, to dataset importation debug and inference. In the same folder is contained the framework, in the folder <ins>maskrcnn</ins>, note that we have applaied same modification to it.
+
+- **Model:** In this folder is contained a pretrained model of Maskrcnn on COCO.
+
+- **Sagemaker_cast_example:** This folder contain the example of training of our dataset on sagemaker, there is a docker file for build it, a script for build it and push it to you aws ecr repository.
+In the same folder there is a docker-compose file whit volumes bindings, to test the correct behaviour of the container in local on your machine.
+
+- **Sagemaker_dummy_example:** First example with a sample program to test the behaviour of sagemaker, without any training only fake logs.
+
+- **Sagemaker_dummy_example_2:** Another example.
+
+- **Sagemaker_lesion_example:** Example of training on sagemaker with ISIC2018 dataset.
+
+- **tools:** Folder containg same usefull script for training data syncronization and data preparation.
 
 - - -
 
@@ -272,7 +287,7 @@ Notebook with code example: [**supervisely_json_dataset_preparetion.ipynb**](dat
 ### **Augmentation**
 
 As we have already said, our dataset it's made by 238 images, 18 of which used for the validation-set so to enable the model to learn and limit the overfitting is needed a good augmentation. We start from the library used on the matterport/Mask_RCNN project [**imgaug**](https://github.com/aleju/imgaug), a powerfull library with a lot of functions usable for ugment images.
-For chose the best functions for our task we have prepared some notebooks for test performance and result of imgaug functions, chosing the best parameters, below the links to this notebooks:
+For chose the best functions for our task we have prepared some notebooks for chose the best parameters, test performances and results of each funcition of imgaug, below the links to this notebooks:
 
 - [**aritmetic_augmentaton_notebook.ipynb**](Augmentation_notebooks/aritmetic_augmentaton_notebook.ipynb)
 - [**blend_augmentation_notebook.ipynb**](Augmentation_notebooks/blend_augmentation_notebook.ipynb)
@@ -285,7 +300,7 @@ For chose the best functions for our task we have prepared some notebooks for te
 - [**imgcorruptlike_augmentation_notebook.ipynb**](Augmentation_notebooks/imgcorruptlike_augmentation_notebook.ipynb)
 - [**pooling_augmentation_notebook.ipynb**](Augmentation_notebooks/pooling_augmentation_notebook.ipynb)
 
-So after tried it we realized three presets in the augmentation_presets.py file, with each preset use more aggressive functions or applay the same more heavily. In the image below are shown 15x15 images of the dataset augmented with the preset 3, the heaviest.
+So after tried it we realized three presets in the augmentation_presets.py file, with each preset use more aggressive functions or applay the same more heavily. In the image below are shown 15x15 images of the dataset augmented with the **preset 3**, the heaviest.
 
 ![Mask preview](assets/augmentation_demo.jpg)
 
