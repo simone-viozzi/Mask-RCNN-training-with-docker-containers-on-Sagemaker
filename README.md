@@ -394,7 +394,70 @@ In the previous example we started the container passing some test data to it, i
 
 There are two metod to pass data inside the script, the `hyperparameters` and `environment`. Both are python dict passesed as argument to `sagemaker.estimator.Estimator` in the notebook.
 
-In our case 
+In our case the hiperparameters on the notebook side are:
+
+```python
+hyperparameters = {
+    "NAME": "cast", 
+    "GPU_COUNT": 1, 
+    "IMAGES_PER_GPU": 1,
+    "AUG_PREST": 1,
+    "TRAIN_SEQ": "[\
+        {\"epochs\": 150, \"layers\": \"all\", \"lr\": 0.005 }\
+    ]"
+}
+[...]
+training_test = sagemaker.estimator.Estimator(
+    [...]
+    hyperparameters = hyperparameters,
+    [...]
+)
+```
+
+Tha syntax in the dict on the notebook is a bit tricky and prone to error because that dict will be converted to strings and than to json, be sure to do a little try and error.
+
+In the train script we can retrieve those from the environment variable `SM_HPS`:
+
+```python
+hyperparameters = json.loads(read_env_var('SM_HPS', {}))
+```
+
+That lead to:
+
+```python
+>>> print(type(hyperparameters))
+<class 'dict'>
+
+>>> print(hyperparameters)
+{'NAME': 'cast', 'GPU_COUNT': 1, 'IMAGES_PER_GPU': 1, 'AUG_PREST': 1, 'TRAIN_SEQ': [{'epochs': 150, 'layers': 'all', 'lr': 0.005}]}
+```
+
+This way we can pass every config (and more) as hyperparameters.
+
+We also used the `environment` parameter to pass the paths of the checkpoints and tensorboard data, on the notebook side we have:
+
+```python
+user_defined_env_vars = {"checkpoints": "/opt/ml/checkpoints",
+                        "tensorboard": "/opt/ml/output/tensorboard"}
+training_test = sagemaker.estimator.Estimator(
+    [...]
+    environment = user_defined_env_vars,
+    [...]
+)
+```
+
+And on the train script we read those as environment variables:
+
+```python
+# default values
+user_defined_env_vars = {"checkpoints": "/opt/ml/checkpoints",
+                         "tensorboard": "/opt/ml/output/tensorboard"}
+
+CHECKPOINTS_DIR = read_env_var("checkpoints", user_defined_env_vars["checkpoints"])
+TENSORBOARD_DIR = read_env_var("tensorboard", user_defined_env_vars["tensorboard"])
+```
+
+The default values are coherent with the default paths used by sagemaker.
 
 - - -
 

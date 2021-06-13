@@ -210,20 +210,21 @@ class castDatasetBox(utils.Dataset):
 		return (masks.astype('bool'), class_idxs)
 
 if __name__ == "__main__":
-	'''
+	
+	"""
 	os.environ['SM_CHANNELS'] = '["dataset","model"]'
 	os.environ['SM_CHANNEL_DATASET'] = '/opt/ml/input/data/dataset'
 	os.environ['SM_CHANNEL_MODEL'] = '/opt/ml/input/data/model'   
-	os.environ['SM_HPS'] = '{"NAME": "cast", \
+	os.environ['SM_HPS'] = '''{"NAME": "cast", \
 							 "GPU_COUNT": 1, \
 							 "IMAGES_PER_GPU": 1,\
 							 "AUG_PREST": 1,
 							 "TRAIN_SEQ":[\
-								{"epochs": 20, "layers": "heads", "lr": 0.001},\
-								{"epochs": 40, "layers": "all", "lr": 0.0001 }\
+								{"epochs": 150, "layers": "all", "lr": 0.005 }\
 							 ]\
-							}'
-	'''
+							}'''
+	"""
+	
 	# default env vars
 	user_defined_env_vars = {"checkpoints": "/opt/ml/checkpoints",
 							 "tensorboard": "/opt/ml/output/tensorboard"}
