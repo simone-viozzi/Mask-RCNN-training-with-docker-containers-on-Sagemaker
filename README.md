@@ -365,9 +365,11 @@ If you want to use Sagemaker API in local you need to create the role by yoursel
 
 - - -
 
-## Start a training job from SageMaker API
+## Start a training job with SageMaker API
 
-First let's create a simple docker image like [this](Sagemaker_dummy_example/Dockerfile), the importante step are:
+The first thing necessary to prepare the traing job on SageMaker is properly define a docker image, specificaly for work with sagemaker the image need the library `sagemaker-training` installed, as you can see in the showed docker file it's installed at build time.
+
+Another key step is to put your project, or script that train your model into the /opt/ml/code folder using the the `COPY` command, the next step is to set an environment variable `SAGEMAKER_PROGRAM` with the `ENV` command that defines which file inside the /opt/ml/code directory to use as the training entry point, note that isn't used a comand like `CMD` or `ENTRYPOINT` because sagemaker start the script by itself, passing to it the parameters specified through the API at launch time.
 
 ```Dockerfile
 [...]
@@ -383,17 +385,51 @@ COPY train.py /opt/ml/code/train.py
 ENV SAGEMAKER_PROGRAM train.py
 ```
 
-The `sagemaker-training` library is needed for sagemaker to interface within the docker; The training script must be located in the `/opt/ml/code` directory. The environment variable `SAGEMAKER_PROGRAM` defines which file inside the `/opt/ml/code` directory to use as the training entry point. When training starts, the interpreter executes the entry point defined by `SAGEMAKER_PROGRAM`.
+ [Complete docker file example](Sagemaker_dummy_example/Dockerfile)
 
-In this example the code parsed some fake hyperparameters and produced some fake chachpoints and tensorboard data.
+You can see our [dummy example code](Sagemaker_dummy_example/train.py) that permit to see by your self how it behaves whitout execute complex code, it simply parse some fake hyperparameters and produced some fake checkpoints and fake tensorboard data, also run the tree command and save the result in output bucket so you can se if your input data were uploaded properly.
 
-The default paths are:
+After a docker image is launched into SageMaker, the following folder structure is created:
 
-- `/opt/ml/output/data/`: the output data
-- `/opt/ml/output/tensorboard/`: the tensorboard
-- `/opt/ml/checkpoints/`: the checkpoints
+```text
+/opt/ml
+├── checkpoints/
+├── code
+|   └── <your training script>
+├── input/
+│   ├── config/
+│   │   ├── hyperparameters.json
+│   │   ├── resourceConfig.json
+|   |   └── ...
+│   └── data/
+│       ├── model/
+│       │   └── <your starting model>
+│       └── <channel_name>
+│           └── <input data>
+├── model
+|   └── <!>
+├── output
+|   ├── data/
+|   |   └── <here put your output data>
+|   ├── metrics/
+|   ├── profiler/
+|   └── tensorboard/
+└── failure
+```
 
-The path structure of sagemaker is described [here](https://docs.aws.amazon.com/sagemaker/latest/dg/amazon-sagemaker-toolkits.html).
+paths explenation and notes:
+
+- `/opt/ml/checkpoints/`  : The default folder where your script should put the checkpoints, redefinable with the API.
+- `/opt/ml/code/` : the default folder were you have to put your code.
+- `/opt/ml/input/data/` : The folder were all channel data are loaded.
+- `/opt/ml/input/data/model/` : the default data channel were your model will be loaded.
+- `/opt/ml/input/data/<channel_name>/`  : A channel folder is a folder created for hold data of a given bucket, if you want to load files from n bucket you can specify n data channel associated to n s3 bucket, when the docker image is lunched the data into the specified s3 bucket will be placed in the corresponding data channel, for example model into data is a predefined data channel.
+- `/opt/ml/output/data/`  : the folder where you should put your generic output data.
+- `/opt/ml/output/data/tensorboard/`  : default folder used for store tensorboard outputs.
+
+[Aws docs of SageMaker path structure](https://docs.aws.amazon.com/sagemaker/latest/dg/amazon-sagemaker-toolkits.html).
+
+- - -
 
 ### Preparation of the data on s3
 
@@ -410,6 +446,8 @@ dataset_bucket = "s3://datsetsbucket/{path_to_dataset}/"
 model_bucket = "s3://cermodelbucket"
 ```
 
+- - -
+
 ### Push the Docker image to ECR
 
 Next you need to push it to an Amazon ECR repository, the docs for this step is [this](https://docs.aws.amazon.com/AmazonECR/latest/userguide/docker-push-ecr-image.html).
@@ -420,6 +458,8 @@ If the push was successful it should appear on the ECR web page like this:
 
 ![ecr_example](assets/ECR_example.png)
 
+- - -
+
 ### start the training job
 
 Now we can launch a sagemaker notebook and start the docker we just pushed to ECR, we can either use the notebook on the AWS page or the local one.
@@ -428,17 +468,23 @@ The notebook we used in this  example is [this](Sagemaker_dummy_example/Dummy_sp
 
 The documentation of `sagemaker.estimator.Estimator` will be extesively treated on a following sectio [TODO link to section]
 
+- - -
+
 ### Output and tensorboard data
 
 During the execution of the container sagemaker will upload to s3 everithing in the tensorboard and checkpoint folder nearly in real time. This can be used to view the tensorboard data as the training proceed; and to save chachpoints of the model in case the training whould be interrupted. In that case the checkpoint folder will be redownloaded onto the new container but it need to be manually cheched at the start of the script.
 
 When the container conclude it's work the content of `/opt/output/data/` will be uploaded in the bucket passed to the estimator, in our case it is `output_path = f's3://{sagemaker_default_bucket}/output'`.
 
+- - -
+
 ## Passing more data to the container
 
 In the previous example we started the container passing some test data to it, in this example we will extend this part.
 
 There are two metod to pass data inside the script, the `hyperparameters` and `environment`. Both are python dict passesed as argument to `sagemaker.estimator.Estimator` in the notebook.
+
+- - -
 
 ### hyperparameters
 
@@ -484,6 +530,8 @@ That lead to:
 
 This way we can pass every config (and more) as hyperparameters.
 
+- - -
+
 ### Environment
 
 We also used the `environment` parameter to pass the paths of the checkpoints and tensorboard data, on the notebook side we have:
@@ -511,6 +559,8 @@ TENSORBOARD_DIR = read_env_var("tensorboard", user_defined_env_vars["tensorboard
 ```
 
 The default values are coherent with the default paths used by sagemaker. [#TODO link to docs]
+
+- - -
 
 ## Estimator parameters explained
 
@@ -677,6 +727,8 @@ i parametri sono:
 - environment (dict[str, str]) – Environment variables to be set for use during training job (default: None)
 
 - max_retry_attempts (int) – The number of times to move a job to the STARTING status. You can specify between 1 and 30 attempts. If the value of attempts is greater than zero, the job is retried on InternalServerFailure the same number of attempts as the value. You can cap the total duration for your job by setting max_wait and max_run (default: None)
+
+- - -
 
 ### metodi
 
