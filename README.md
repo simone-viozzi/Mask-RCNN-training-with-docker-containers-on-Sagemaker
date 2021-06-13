@@ -487,7 +487,7 @@ TENSORBOARD_DIR = read_env_var("tensorboard", user_defined_env_vars["tensorboard
 
 The default values are coherent with the default paths used by sagemaker. [#TODO link to docs]
 
-## Craking down estimator parameters
+## Estimator parameters explained
 
 <!-- WORK IN PROGRESS -->
 
@@ -619,7 +619,7 @@ i parametri sono:
 
 - max_retry_attempts (int) – The number of times to move a job to the STARTING status. You can specify between 1 and 30 attempts. If the value of attempts is greater than zero, the job is retried on InternalServerFailure the same number of attempts as the value. You can cap the total duration for your job by setting max_wait and max_run (default: None)
 
-## metodi
+### metodi
 
 ```python
 [...estimator...].fit(inputs=None, wait=True, logs='All', job_name=None, experiment_config=None)
