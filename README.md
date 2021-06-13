@@ -355,13 +355,19 @@ First let's create a simple docker image like [this](Sagemaker_dummy_example/Doc
 
 ```Dockerfile
 [...]
+
+# install the SageMaker Training Toolkit 
 RUN pip3 install sagemaker-training
 
+# copy the training script inside the container
+COPY train.py /opt/ml/code/train.py
+
 [...]
-ENV SAGEMAKER_PROGRAM "train.py"
+# define train.py as the script entry point
+ENV SAGEMAKER_PROGRAM train.py
 ```
 
-The `sagemaker-training` library is needed for sagemaker to interface within the docker; the `SAGEMAKER_PROGRAM` environment variable tell sagemaker wich script need to be executed for the training.
+The `sagemaker-training` library is needed for sagemaker to interface within the docker; The training script must be located in the `/opt/ml/code` directory. The environment variable `SAGEMAKER_PROGRAM` defines which file inside the `/opt/ml/code` directory to use as the training entry point. When training starts, the interpreter executes the entry point defined by `SAGEMAKER_PROGRAM`.
 
 In this example the code parsed some fake hyperparameters and produced some fake chachpoints and tensorboard data.
 
