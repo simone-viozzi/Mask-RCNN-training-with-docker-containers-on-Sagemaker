@@ -500,7 +500,12 @@ The default values are coherent with the default paths used by sagemaker. [#TODO
 
 <!-- WORK IN PROGRESS -->
 
-Per lanciare il container da un sagemaker notebook si deve usare:
+To start the training we need to use the SageMaker Python SDK, for our use case we need to use the [Estimator](https://sagemaker.readthedocs.io/en/stable/api/training/estimators.html#sagemaker.estimator.Estimator) class.
+
+This is a generic Estimator to train using any supplied algorithm and it's designed for use with algorithms that don’t have their custom estimator class. In our case we 
+
+could have used the [TensorFlow Estimator](https://sagemaker.readthedocs.io/en/stable/frameworks/tensorflow/using_tf.html) but to keep it as generic as possible we sacrifiched some optimization
+
 
 ```python
 from sagemaker.estimator import Estimator
@@ -508,7 +513,7 @@ from sagemaker.estimator import Estimator
 estimator = Estimator([...])
 ```
 
-la sinopsi e':
+
 
 ```python
 class sagemaker.estimator.Estimator(
