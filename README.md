@@ -424,6 +424,7 @@ paths explenation and notes:
 - `/opt/ml/input/data/` : The folder were all channel data are loaded.
 - `/opt/ml/input/data/model/` : the default data channel were your model will be loaded.
 - `/opt/ml/input/data/<channel_name>/`  : A channel folder is a folder created for hold data of a given bucket, if you want to load files from n bucket you can specify n data channel associated to n s3 bucket, when the docker image is lunched the data into the specified s3 bucket will be placed in the corresponding data channel, for example model into data is a predefined data channel.
+- `/opt/ml/model/`  : This folder seems to be not used, is present but in our specific case isn't used by the class estimtor, so don't consider it in our examples, maybe is deprecated.
 - `/opt/ml/output/data/`  : the folder where you should put your generic output data.
 - `/opt/ml/output/data/tensorboard/`  : default folder used for store tensorboard outputs.
 
