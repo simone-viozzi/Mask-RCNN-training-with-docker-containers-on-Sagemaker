@@ -865,12 +865,12 @@ The documentation of the parameters is:
 
 <table style="width:100%">
   <tr>
-    <td><img src="assets/cast_results/Comparison_screenshot_14.06.2021.png"  alt="1" width = 600px height = 300px ></td>
-    <td><img src="assets/cast_results/Comparison2_screenshot_14.06.2021.png"  alt="1" width = 600px height = 300px ></td>
+    <td><img src="assets/cast_results/Comparison_screenshot_14.06.2021.png"  alt="1" width = 400px height = 200px ></td>
+    <td><img src="assets/cast_results/Comparison2_screenshot_14.06.2021.png"  alt="1" width = 400px height = 200px ></td>
   </tr>
   <tr>
-    <td><img src="assets/cast_results/Comparison3_screenshot_14.06.2021.png"  alt="1" width = 600px height = 300px ></td>
-    <td><img src="assets/cast_results/Comparison4_screenshot_14.06.2021.png"  alt="1" width = 600px height = 300px ></td>
+    <td><img src="assets/cast_results/Comparison3_screenshot_14.06.2021.png"  alt="1" width = 400px height = 200px ></td>
+    <td><img src="assets/cast_results/Comparison4_screenshot_14.06.2021.png"  alt="1" width = 400px height = 200px ></td>
   </tr>
 </table>
 
