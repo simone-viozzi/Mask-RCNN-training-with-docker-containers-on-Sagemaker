@@ -41,9 +41,19 @@ class castConfig(Config):
 	Extension of Config class of the framework maskrcnn (mrcnn/config.py),
 	"""
 
+	# mean of all pixel of all images in the datatset
 	MEAN_PIXEL = np.array([143.75, 143.75, 143.75])
 
+	# NOTE: this parameter must be true due to a bug in mask application
 	USE_MINI_MASK = True
+
+	# this is the size in whitch the masks will be resized when loaded 
+	# from the dataset to the ram. a low value reduce the memory usage but 
+	# if the mask is small it can lead to a blank mask. this happen because 
+	# the mask is scaled to MINI_MASK_SHAPE and than rescaled to it's actual 
+	# size, if the original size of the mask was small enough it could be 
+	# scaled to a size less than one pixel, so when rescaled back the mask 
+	# will be empty.
 	MINI_MASK_SHAPE = (512, 512)
 
 
@@ -59,6 +69,9 @@ class castConfig(Config):
 
 
 	# SMALL MASKS DILATION PARAMETERS
+	# in this dataset we have quite a lot of small masks, to help the NN
+	# see those small masks we dilate them with differed dilation grades
+	# based on the size on the mask
 	DILATE_MASKS = True
 	DILATE_THERS_2 = 15000
 	DILATE_THERS_1 = 500
@@ -71,6 +84,8 @@ class castConfig(Config):
 		Overriding of same config variables
 		and addition of others.
 		"""
+		# this is equivalent to setting every keyword in kwargs to the 
+		# self corresponding, es: self.STEPS_PER_EPOCH=kwargs['STEPS_PER_EPOCH']
 		self.__dict__.update(kwargs)
 		super().__init__()
 
@@ -210,7 +225,11 @@ class castDatasetBox(utils.Dataset):
 		return (masks.astype('bool'), class_idxs)
 
 if __name__ == "__main__":
-	
+	# if you need to debug this script simulating the behavior of sagemaker
+	# you can set the environemnt variables yourself and let the script read 
+	# them later in the code. this need to be commented out when running 
+	# in sagemaker so that the environemnt variables are the one declared 
+	# when starting the training job from the sagemaker api.
 	"""
 	os.environ['SM_CHANNELS'] = '["dataset","model"]'
 	os.environ['SM_CHANNEL_DATASET'] = '/opt/ml/input/data/dataset'
@@ -228,12 +247,14 @@ if __name__ == "__main__":
 	# default env vars
 	user_defined_env_vars = {"checkpoints": "/opt/ml/checkpoints",
 							 "tensorboard": "/opt/ml/output/tensorboard"}
-							 
+			 
 	channels = read_channels()
 	dataset_path = channels['dataset']
 	MODEL_PATH = os.path.sep.join([channels['model'], "mask_rcnn_coco.h5"])
 	CHECKPOINTS_DIR = read_env_var("checkpoints", user_defined_env_vars["checkpoints"])
 	TENSORBOARD_DIR = read_env_var("tensorboard", user_defined_env_vars["tensorboard"])
+
+	# to load the hyperparameters as dict we need to pass the string r
 	hyperparameters = json.loads(read_env_var('SM_HPS', {}))
 	
 	# TRAIN DATASET DEFINITIONS -------------------------------------------------------------
