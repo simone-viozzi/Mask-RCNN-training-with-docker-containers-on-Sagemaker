@@ -389,7 +389,11 @@ ENV SAGEMAKER_PROGRAM train.py
 
 You can see our [dummy example code](Sagemaker_dummy_example/train.py) that permit to see by your self how it behaves whitout execute complex code, it simply parse some fake hyperparameters and produced some fake checkpoints and fake tensorboard data, also run the tree command and save the result in output bucket so you can se if your input data were uploaded properly.
 
-After a docker image is launched into SageMaker, the following folder structure is created:
+- - -
+
+### /opt/ml/ folder structure
+
+After the container is launched into SageMaker, the following folder structure is created under the folder `/opt/ml/`:
 
 ```text
 /opt/ml
