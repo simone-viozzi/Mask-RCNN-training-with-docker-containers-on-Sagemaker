@@ -512,11 +512,11 @@ docker push <aws account id>.dkr.ecr.<repository region>.amazonaws.com/<repo_nam
 
 ### start the training job
 
-Now we can launch a sagemaker notebook and start the docker we just pushed to ECR, we can either use the notebook on the AWS page or the local one.
+Now we can launch a sagemaker notebook and start the docker we just pushed to ECR, we can either use the notebook instance on sagemaker or use the jupiter notebook in local if you already have the cli and the the sagemaker sdk installed.
 
-The notebook we used in this  example is [this](Sagemaker_dummy_example/Dummy_spot_container_training.ipynb), more info is on the notebook.
+The notebook we used in this  example is [Dummy_spot_container_training](Sagemaker_dummy_example/Dummy_spot_container_training.ipynb), you can find each step clear explained into the jupyter notebook.
 
-The documentation of `sagemaker.estimator.Estimator` will be extesively treated on a following sectio [TODO link to section]
+The documentation of [`sagemaker.estimator.Estimator`](#estimator-parameters-explained) will be extesively treated on a following section.
 
 - - -
 
