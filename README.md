@@ -882,7 +882,7 @@ Below are shown the tesnorboard screenshots of our metrics using 3 set of hyperp
   <tr>
     <td>
       <font color="purple">
-      Hyperparametrs set 1
+      Hyperparametrs set 1 (purple)
       </font>
     </td>
   </tr>
@@ -919,7 +919,7 @@ Below are shown the tesnorboard screenshots of our metrics using 3 set of hyperp
   <tr>
     <td>
       <font color="green">
-      Hyperparametrs set 2
+      Hyperparametrs set 2 (green)
       </font>
     </td>
   </tr>
@@ -956,7 +956,7 @@ Below are shown the tesnorboard screenshots of our metrics using 3 set of hyperp
   <tr>
     <td>
       <font color="orange">
-      Hyperparametrs set 3
+      Hyperparametrs set 3 (orange)
       </font>
     </td>
   </tr>
