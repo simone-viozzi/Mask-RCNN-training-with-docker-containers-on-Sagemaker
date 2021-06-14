@@ -71,7 +71,7 @@ class castConfig(Config):
 	# SMALL MASKS DILATION PARAMETERS
 	# in this dataset we have quite a lot of small masks, to help the NN
 	# see those small masks we dilate them with differed dilation grades
-	# based on the size on the mask
+	# based on the size of the mask
 	DILATE_MASKS = True
 	DILATE_THERS_2 = 15000
 	DILATE_THERS_1 = 500
