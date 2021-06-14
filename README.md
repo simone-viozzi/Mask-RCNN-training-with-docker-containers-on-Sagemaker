@@ -4,6 +4,8 @@ Mask R-CNN for metal casting defects detection and instance segmentation using K
 
 This project was possible thanks to the repository [matterport/Mask_RCNN](https://github.com/matterport/Mask_RCNN), where we have adapted the code for instance segmentation written by matterport for work into a docker container and fine-tuned the pretrained model on COCO with our dataset, using Sagemaker.
 
+![test inference](assets/cast_results/Comparison2_screenshot_14.06.2021.png)
+
 - - -
 
 # **Index**
@@ -863,7 +865,7 @@ The documentation of the parameters is:
 
 # **Results**
 
-Below can be seen same inferences make on images that arent used neither in the training nor in the validation set, the resuts are pretty good given the scarcity of labeled data, after same test and same dataset refinitions we find the right augmentation and the results has become acceptable.
+Below can be seen same inferences make on images that arent used neither in the training nor in the validation set, the results are pretty good given the scarcity of labeled data, after same test and same dataset refinitions we find the right augmentation and the results has become acceptable.
 
 <table style="width:100%">
   <tr>
@@ -876,7 +878,7 @@ Below can be seen same inferences make on images that arent used neither in the 
   </tr>
 </table>
 
-Below are shown the tesnorboard screenshots of our metrics using 3 set of hyperparametrs, that give us pretty good results with this dataset.
+Below are shown the tesnorboard screenshots of our metrics using 3 set of hyperparametrs, that give us pretty good results with this dataset. You can see 3 tables with hyperparameters passed to the Sagemaker docker container, each set of hyperparameters is associated at one chart color.
 
 <table style="width:100%" border="2" bordercolor = "#fffff">
   <tr>
