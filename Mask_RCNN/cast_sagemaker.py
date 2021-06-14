@@ -28,7 +28,7 @@ import sys
 import io
 
 # NOTE: used in the load_mask function
-# don't move this declaration.
+# don't move this declaration. 
 CLASS_NAMES = {
 	1 : "chipping",
 	2 : "deburring",
@@ -341,33 +341,12 @@ if __name__ == "__main__":
 		print('checkpoints folder empty...')
 		model.load_weights(MODEL_PATH, by_name=True, exclude=[
 		                   "mrcnn_class_logits", "mrcnn_bbox_fc", "mrcnn_bbox", "mrcnn_mask"])
-		
 	
-	# execute train sequence
-	train_seq = hyperparameters['TRAIN_SEQ']
-	print(train_seq)
-	for i in range(len(train_seq)):
-		if model.epoch >= train_seq[i]['epochs']:
-			continue
-
-		model.train(trainDataset,
-                    valDataset,
-                    epochs=train_seq[i]['epochs'],
-                    layers=train_seq[i]['layers'],
-                    learning_rate=train_seq[i]['lr'],
-                    augmentation=aug)
-
-	''' 
-	 OLD FASHION
-	# train *just* the layer heads
-	model.train(trainDataset, valDataset, epochs=hyperparameter	print(type(train_seq)) / 10,
-				augmentation=aug)
 	'''
-'''
-TRAIN_SEQ hyperparameter sample
+	TRAIN_SEQ hyperparameter sample
 	In this notation the epochs specify a number of epoch absolute, the first object specify
 	that from the epoch 0 to epoch 20 there are certain parameters, the second object specify that there is
-	
+
 	'TRAIN_SEQ':[
 		{
 			'epochs': 20,
@@ -380,4 +359,20 @@ TRAIN_SEQ hyperparameter sample
 			'lr': 0.0001,
 		}
 	]
-'''
+	'''
+	train_seq = hyperparameters['TRAIN_SEQ']
+	print(train_seq)
+
+	# execute train sequence
+	for i in range(len(train_seq)):
+		if model.epoch >= train_seq[i]['epochs']:
+			continue
+
+		model.train(trainDataset,
+                    valDataset,
+                    epochs=train_seq[i]['epochs'],
+                    layers=train_seq[i]['layers'],
+                    learning_rate=train_seq[i]['lr'],
+                    augmentation=aug)
+
+		
