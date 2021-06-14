@@ -392,9 +392,9 @@ You can see our [dummy example code](Sagemaker_dummy_example/train.py) that perm
 
 - - -
 
-### Training job container folder structure
+### Sagemaker container folder structure
 
-After the container is launched into SageMaker, the following folder structure is created under the folder `/opt/ml/`:
+After the container is launched into SageMaker, the following folder structure is created under the path `/opt/ml/`:
 
 ```text
 /opt/ml
@@ -437,32 +437,76 @@ paths explenation and notes:
 
 - - -
 
-### Preparation of the data on s3
+### S3 as training data source and results destination
 
-The training job will download the model and the dataset from s3, so we need to make some bucket and upload what is needed.
+The training job on sagemaker is ephemeral, its storage will be deletted after the end of the process so you need another destination for your results and at the same time you need an external source to load training data, starting models or other data that you need. S3 is an excellent choice, due to the large capacity, due to the high bandwidth available that allaow the container to download the data at high speed, instead of donwnload from other internet sources at low speed, but be aware that s3 bill every single gigabyte that you use every day so take a look to the [AWS cost explorer](https://aws.amazon.com/it/aws-cost-management/aws-cost-explorer/).
 
-In our case we made two buckets, one for the datasets and one for the pretrained model:
+As is shown above, in the path `/opt/ml/input/data/` are placed all the content of the bucket passed to sagemaker API method that start your training, in this case fit(), note that this data will be loaded before that your code will launched, SageMaker do all the work for you. In this example extracted from one of the project notebooks you can see how we pass an s3 bucket folder contining our dataset to the fit() function:
+
+```python
+# s3 path containing the dataset needed for training the model
+dataset_bucket = "s3://datsetsbucket/cast_dataset/"
+
+training_test.fit(
+    inputs      = {
+        'dataset': dataset_bucket
+    },
+    job_name    = job_name,
+    wait        = True,
+    logs        = 'All'
+)
+```
+
+[complete script here](Sagemaker_cast_example/cast_container_training.ipynb)
+
+so you must specify for each bucket that you want a "channel_name" in this example "dataset", that will be the name of the folder that you'll find in your input data path. as shown associate your bucket uri and your desired channel name in a simple dict, note that you can put in several channels.
+
+There are other channel that you should specify (like model, checkpoints and tensorboard_output) but this are specified in the constructor of the `class sagemaker.estimator.Estimator`, that is the type of the above mentioned `training_test` object. this channels are explained below in the dedicated section of the Estimator constructor but take in mind that the way in which they work don't change.
 
 ![s3_buckets](assets/s3_buckets.png)
 
-We will nees the uri of those bucket later, they will look like:
-
-```python
-dataset_bucket = "s3://datsetsbucket/{path_to_dataset}/"
-model_bucket = "s3://cermodelbucket"
-```
+Above an image of the buckets defined into s3, be sure to put the buckets in the same region of your training job.
 
 - - -
 
 ### Push the Docker image to ECR
 
-Next you need to push it to an Amazon ECR repository, the docs for this step is [this](https://docs.aws.amazon.com/AmazonECR/latest/userguide/docker-push-ecr-image.html).
-
-[#TODO massi!]
-
-If the push was successful it should appear on the ECR web page like this:
+Another important step for run your Sagemaker training job is to push your docker image to the ECR AWS service, that stands for Elastic container registry, like docker hub permit to you to push and pull your images, manage the versions and so on. Here you can see our ECR service page with the two repository created for this project:
 
 ![ecr_example](assets/ECR_example.png)
+
+First of all you need to create your first ECR repo, it's realy simple, follow the [documentation](https://docs.aws.amazon.com/AmazonECR/latest/userguide/repository-create.html), the next step is to build your image.
+
+If you want to push your docker image to ECR you need to set a specific name for the image at build time, consider our repository name is `<aws account id>.dkr.ecr.<repository region>.amazonaws.com/test_repo`, and assuming that your dockerfile is in the same folder were you should launch this command:
+
+```bash
+docker build --tag <aws account id>.dkr.ecr.<repository region>.amazonaws.com/test_repo:<image version tag> .
+
+# example
+# docker build --tag 121212121212.dkr.ecr.eu-west-1.amazonaws.com/test_repo:ver_1 .
+```
+
+Now you created an image with the name of the repository with a specific tag for the image version, you can load another version in the same repo specifing another tag later, if not specified it should be automaticaly set to `latest`. If you already have another image with a different name it's possible to rename it, follow the docker documentation of the [docker tag command](https://docs.docker.com/engine/reference/commandline/tag/).
+
+Another step is required before the push of your image, docker should be configured with the ECR token that is valid only for one day so you need to repeet this procedure one time each day and eventualy for each ECR region or account that you need to use.
+
+```bash
+docker login -u AWS -p $(aws ecr get-login-password) <aws account id>.dkr.ecr.<repository region>.amazonaws.com
+
+# example 
+# docker login -u AWS -p $(aws ecr get-login-password) 121212121212.dkr.ecr.eu-west-1.amazonaws.com
+```
+
+Note that `aws ecr get-login-password` is an aws cli command that retrive the token needed for the configuration of docker, in this command the token will be passed to docker that now can push and pull images from all the repositories contained into `<aws account id>.dkr.ecr.<repository region>.amazonaws.com`.
+
+At this point you are ready for push the image into your ECR repository with the following command:
+
+```bash
+docker push <aws account id>.dkr.ecr.<repository region>.amazonaws.com/<repo_name>:<image version tag>
+
+# example
+# docker push 121212121212.dkr.ecr.eu-west-1.amazonaws.com/test_repo:ver_1
+```
 
 - - -
 
@@ -768,6 +812,12 @@ The documentation of the parameters is:
 - **logs** ([str]) – A list of strings specifying which logs to print. Acceptable strings are “All”, “None”, “Training”, or “Rules”. With the default value, `All` we can see on the output of this call the stdout and stderr of the container. This is essentail to track possible errors during the training process.
 
 - **job_name** (str) – Training job name. If not specified, the estimator generates a default job name based on the training image name and current timestamp. This need to be unique for every execution of the fit method.
+
+- - -
+
+# **Training script**
+
+
 
 - - -
 

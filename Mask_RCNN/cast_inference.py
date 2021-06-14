@@ -212,11 +212,11 @@ if __name__ == "__main__":
 			# if b pressed toogle bounding boxes
 			if key == ord('b'):
 				show_bboxs = not show_bboxs
-
+			
 			# if m pressed toogle masks
 			elif key == ord('m'):
 				show_masks = not show_masks
-				
+			
 			# if t pressed toogle text
 			elif key == ord('t'):
 				show_text = not show_text
@@ -226,7 +226,6 @@ if __name__ == "__main__":
 			elif key == ord('c'):
 				class_selector = class_selector+1 if class_selector < len(CLASS_NAMES) else 0
 				instance_selector = -1
-
 
 			# if i pressed selective show instances
 			elif key == ord('i'):
