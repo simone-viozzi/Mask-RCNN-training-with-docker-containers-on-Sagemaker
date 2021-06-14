@@ -43,6 +43,7 @@ class castConfig(Config):
 
 	MEAN_PIXEL = np.array([143.75, 143.75, 143.75])
 
+
 	USE_MINI_MASK = True
 	MINI_MASK_SHAPE = (512, 512)
 
