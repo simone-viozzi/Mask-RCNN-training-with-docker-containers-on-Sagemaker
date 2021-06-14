@@ -90,7 +90,6 @@ In this section is shown the structure of the project and what is the content of
 │       ├── docker-compose.yml
 │       └── Dockerfile
 ├── Sagemaker_dummy_example
-├── Sagemaker_dummy_example_2
 ├── Sagemaker_lesion_example
 └── tools
 
@@ -339,7 +338,7 @@ Another advantage of using docker images in sagemaker is the hyperparameters, pa
 
 - - -
 
-## Sagemaker API
+## **Sagemaker API**
 
 Amazon SageMaker provides several APIs and SDKs to manage training jobs and deploy algorithms, the complete list can be found [here](https://docs.aws.amazon.com/sagemaker/latest/dg/api-and-sdk-reference.html). In our case we chose the suggested method, in this project we use **Amazon SageMaker Python SDK** that can be installed simply though pip, with the below command:
 
@@ -367,7 +366,7 @@ If you want to use Sagemaker API in local you need to create the role by yoursel
 
 - - -
 
-## Taraining job on SageMaker
+## **Taraining job on SageMaker**
 
 The first thing necessary to prepare the traing job on SageMaker is properly define a docker image, specificaly for work with sagemaker the image need the library `sagemaker-training` installed, as you can see in the showed docker file it's installed at build time.
 
@@ -393,7 +392,7 @@ You can see our [dummy example code](Sagemaker_dummy_example/train.py) that perm
 
 - - -
 
-### Sagemaker container folder structure
+### **Sagemaker container folder structure**
 
 After the container is launched into SageMaker, the following folder structure is created under the path `/opt/ml/`:
 
@@ -438,7 +437,7 @@ paths explenation and notes:
 
 - - -
 
-### S3 as training data source and results destination
+### **S3 as training data source and results destination**
 
 The training job on sagemaker is ephemeral, its storage will be deletted after the end of the process so you need another destination for your results and at the same time you need an external source to load training data, starting models or other data that you need. S3 is an excellent choice, due to the large capacity, due to the high bandwidth available that allaow the container to download the data at high speed, instead of donwnload from other internet sources at low speed, but be aware that s3 bill every single gigabyte that you use every day so take a look to the [AWS cost explorer](https://aws.amazon.com/it/aws-cost-management/aws-cost-explorer/).
 
@@ -470,7 +469,7 @@ Above an image of the buckets defined into s3, be sure to put the buckets in the
 
 - - -
 
-### Push the Docker image to ECR
+### **Push the Docker image to ECR**
 
 Another important step for run your Sagemaker training job is to push your docker image to the ECR AWS service, that stands for Elastic container registry, like docker hub permit to you to push and pull your images, manage the versions and so on. Here you can see our ECR service page with the two repository created for this project:
 
@@ -511,7 +510,7 @@ docker push <aws account id>.dkr.ecr.<repository region>.amazonaws.com/<repo_nam
 
 - - -
 
-### start the training job
+### **Start the training job**
 
 Now we can launch a sagemaker notebook and start the docker we just pushed to ECR, we can either use the notebook instance on sagemaker or use the jupiter notebook in local if you already have the cli and the the sagemaker sdk installed.
 
@@ -521,25 +520,27 @@ The documentation of [`sagemaker.estimator.Estimator`](#estimator-parameters-exp
 
 - - -
 
-### Output and tensorboard data
+### **Output and tensorboard data**
 
-During the execution of the container sagemaker will upload to s3 everithing in the tensorboard and checkpoint folder nearly in real time. This can be used to view the tensorboard data as the training proceed; and to save chachpoints of the model in case the training whould be interrupted. In that case the checkpoint folder will be redownloaded onto the new container but it need to be manually cheched at the start of the script.
+During the execution of the container sagemaker will upload to s3 everithing in the tensorboard and checkpoint folder nearly in real time. This can be used to view the tensorboard data and to save checkpoints of the model in case the training whould be interrupted. In that case the checkpoint folder will be redownloaded into the new container but it need to be manually cheched at the start of the script.
 
-When the container conclude it's work the content of `/opt/output/data/` will be uploaded in the bucket passed to the estimator, in our case it is `output_path = f's3://{sagemaker_default_bucket}/output'`.
-
-- - -
-
-## Passing more data to the container
-
-In the previous example we started the container passing some test data to it, in this example we will extend this part.
-
-There are two metod to pass data inside the script, the `hyperparameters` and `environment`. Both are python dict passesed as argument to `sagemaker.estimator.Estimator` in the notebook.
+When the container conclude it's work the content of `/opt/output/data/` will be uploaded in the bucket passed to the estimator, in our case it is `output_path = f's3://{sagemaker_default_bucket}/output'` the default bucket, but if you want you can chose another one.
 
 - - -
 
-### hyperparameters
+## **Hyperparameters and environment variabes**
 
-In our case the hiperparameters on the notebook side are:
+
+
+In the previous example we started the container passing some test data to it, in [cast_container_training](Sagemaker_cast_example/cast_container_training.ipynb) example we will pass more complex data as hyperparameters and get some other information that sagemaker pass to the container setting some environemnt variables.
+
+Inside the container script there are two method to retrive hyperparameters, the `program arguments` and the `environment variables`. In both cases the way in which the hyperparameters are passed to the `sagemaker.estimator.Estimator` in the notebook is the same, using a python dict.
+
+As environment variables there are a lot of information that can be retrived about the container configurations, more details about the Sagemaker environment variables can be found on [Sagemaker environment variables](https://github.com/aws/sagemaker-training-toolkit/blob/master/ENVIRONMENT_VARIABLES.md).
+
+### **hyperparameters**
+
+In our case the hyperparameters on the notebook side are:
 
 ```python
 hyperparameters = {
@@ -548,8 +549,19 @@ hyperparameters = {
     "IMAGES_PER_GPU": 1,
     "AUG_PREST": 1,
     "TRAIN_SEQ": "[\
-        {\"epochs\": 150, \"layers\": \"all\", \"lr\": 0.005 }\
-    ]"
+        {\
+          \"epochs\": 250,\
+          \"layers\": \"all\",\
+          \"lr\": 0.0035\
+        }\
+    ]",
+    "LOSS_WEIGHTS": "{\
+        \"rpn_class_loss\": 0.8,\
+        \"rpn_bbox_loss\": 0.8,\
+        \"mrcnn_class_loss\": 0.5,\
+        \"mrcnn_bbox_loss\": 0.8,\
+        \"mrcnn_mask_loss\": 0.7\
+    }"
 }
 
 [...]
@@ -561,13 +573,15 @@ training_test = sagemaker.estimator.Estimator(
 )
 ```
 
-Tha syntax in the dict on the notebook is a bit tricky and prone to error because that dict will be converted to strings and than to json, be sure to do a little try and error.
+That syntax in the dict on the notebook is a bit tricky and prone to error because that dict will be converted to strings and than to json, be sure to do a little try and error.
 
 In the train script we can retrieve those from the environment variable `SM_HPS`:
 
 ```python
 hyperparameters = json.loads(read_env_var('SM_HPS', {}))
 ```
+
+You can find the definition of `read_env_var()` in [sagemaker_utils.py](Mask_RCNN/mrcnn/sagemaker_utils.py).
 
 That lead to:
 
@@ -576,16 +590,40 @@ That lead to:
 <class 'dict'>
 
 >>> print(hyperparameters)
-{'NAME': 'cast', 'GPU_COUNT': 1, 'IMAGES_PER_GPU': 1, 'AUG_PREST': 1, 'TRAIN_SEQ': [{'epochs': 150, 'layers': 'all', 'lr': 0.005}]}
+{'NAME': 'cast', 'GPU_COUNT': 1, 'IMAGES_PER_GPU': 1, 'AUG_PREST': 1, 'TRAIN_SEQ': [{'epochs': 250, 'layers': 'all', 'lr': 0.0035}], ...}
 ```
 
-This way we can pass every config (and more) as hyperparameters.
+In this way we can access all the hyperparameters as a dict, and naming the parameters as the config class attributes we can overwrite the standard configuration of the project simply passing the dict as argument to the config class, as can be seen in [cast_sagemaker.py](Mask_RCNN/cast_sagemaker.py).
 
-- - -
+```python
+# part of castConfig definition
+class castConfig(Config):
+  """
+  Extension of Config class of the framework maskrcnn (mrcnn/config.py),
+  """
 
-### Environment
+  ...
 
-We also used the `environment` parameter to pass the paths of the checkpoints and tensorboard data, on the notebook side we have:
+  def __init__(self, **kwargs):
+    """
+    Overriding of same config variables
+    and addition of others.
+    """
+    # in this row config attributes are overwritten
+    # with hyperparameters
+    self.__dict__.update(kwargs)
+    super().__init__()
+
+
+config = castConfig(
+  ...,
+  **hyperparameters
+)
+```
+
+### **Environment**
+
+We also used the `environment` parameter to pass the paths of the checkpoints and tensorboard data to the container, note that the parameter environment take a dict as argument and permit to easily set environment variables into the container. We use this parameter to pass to the container the checkpoint folder and the tensorboard output folder.
 
 ```python
 user_defined_env_vars = {"checkpoints": "/opt/ml/checkpoints",
@@ -609,11 +647,12 @@ CHECKPOINTS_DIR = read_env_var("checkpoints", user_defined_env_vars["checkpoints
 TENSORBOARD_DIR = read_env_var("tensorboard", user_defined_env_vars["tensorboard"])
 ```
 
-The default values are coherent with the default paths used by sagemaker. [#TODO link to docs]
+You can find the definition of `read_env_var()` in [sagemaker_utils.py](Mask_RCNN/mrcnn/sagemaker_utils.py).
+The default values are coherent with the default paths used by sagemaker.
 
 - - -
 
-## Estimator parameters explained
+## **Estimator parameters explained**
 
 To start the training we need to use the SageMaker Python SDK, for our use case we need to use the [Estimator](https://sagemaker.readthedocs.io/en/stable/api/training/estimators.html#sagemaker.estimator.Estimator) class.
 
@@ -823,6 +862,8 @@ The documentation of the parameters is:
 - - -
 
 # **Results**
+
+
 
 - - -
 
