@@ -308,7 +308,7 @@ So after tried it we realized three presets in the augmentation_presets.py file,
 
 # **Training on Sagemaker**
 
-## Sagemaker overview
+## **Sagemaker overview**
 
 The following diagram shows how you train and deploy a model with Amazon SageMaker:
 
@@ -811,7 +811,7 @@ Example:
 
 - **max_retry_attempts** (int) – The number of times to move a job to the STARTING status. You can specify between 1 and 30 attempts. If the value of attempts is greater than zero, the job is retried on InternalServerFailure the same number of attempts as the value. You can cap the total duration for your job by setting max_wait and max_run (default: None)
 
-### The fit method
+### **The fit method**
 
 To actually start the training job we need to call the `fit` method of the estimator. The default parameters are:
 
