@@ -874,6 +874,33 @@ The documentation of the parameters is:
   </tr>
 </table>
 
+<table style="width:100%">
+  <tr>
+    <td><img src="assets/training charts/loss.png"  alt="1" width = 400px height = 200px ></td>
+    <td><img src="assets/training charts/val_loss.png"  alt="1" width = 400px height = 200px ></td>
+  </tr>
+  <tr>
+    <td><img src="assets/training charts/mrcnn_bbox_loss.png"  alt="1" width = 400px height = 200px ></td>
+    <td><img src="assets/training charts/val_mrcnn_bbox_loss.png"  alt="1" width = 400px height = 200px ></td>
+  </tr>
+  <tr>
+    <td><img src="assets/training charts/mrcnn_class_loss.png"  alt="1" width = 400px height = 200px ></td>
+    <td><img src="assets/training charts/val_mrcnn_class_loss.png"  alt="1" width = 400px height = 200px ></td>
+  </tr>
+  <tr>
+    <td><img src="assets/training charts/mrcnn_mask_loss.png"  alt="1" width = 400px height = 200px ></td>
+    <td><img src="assets/training charts/val_mrcnn_mask_loss.png"  alt="1" width = 400px height = 200px ></td>
+  </tr>
+  <tr>
+    <td><img src="assets/training charts/rpn_bbox_loss.png"  alt="1" width = 400px height = 200px ></td>
+    <td><img src="assets/training charts/val_rpn_bbox_loss.png"  alt="1" width = 400px height = 200px ></td>
+  </tr>
+  <tr>
+    <td><img src="assets/training charts/rpn_class_loss.png"  alt="1" width = 400px height = 200px ></td>
+    <td><img src="assets/training charts/val_rpn_class_loss.png"  alt="1" width = 400px height = 200px ></td>
+  </tr>
+</table>
+
 - - -
 
 # **Useful links**
