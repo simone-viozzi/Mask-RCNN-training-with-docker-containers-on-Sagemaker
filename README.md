@@ -593,7 +593,7 @@ That lead to:
 {'NAME': 'cast', 'GPU_COUNT': 1, 'IMAGES_PER_GPU': 1, 'AUG_PREST': 1, 'TRAIN_SEQ': [{'epochs': 250, 'layers': 'all', 'lr': 0.0035}], ...}
 ```
 
-In this way we can access all the hyperparameters as a dict, and naming the parameters as the config class attributes we can overwrite the standard configuration of the project simply passing the dict as argument to the config class, as can be seen in [cast_sagemaker.py](Mask_RCNN/cast_sagemaker.py).
+In this way we can access all the hyperparameters as a dict, and naming the parameters as the config class attributes so we can overwrite the standard configuration of the project simply passing the dict as argument to the config class, as can be seen in [cast_sagemaker.py](Mask_RCNN/cast_sagemaker.py) and in the below extract.
 
 ```python
 # part of castConfig definition
