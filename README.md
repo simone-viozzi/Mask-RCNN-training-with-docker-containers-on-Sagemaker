@@ -863,7 +863,177 @@ The documentation of the parameters is:
 
 # **Results**
 
+Below can be seen same inferences make on images that arent used neither in the training nor in the validation set, the resuts are pretty good given the scarcity of labeled data, after same test and same dataset refinitions we find the right augmentation and the results has become acceptable.
 
+<table style="width:100%">
+  <tr>
+    <td><img src="assets/cast_results/Comparison_screenshot_14.06.2021.png"  alt="1" width = 400px height = 200px ></td>
+    <td><img src="assets/cast_results/Comparison2_screenshot_14.06.2021.png"  alt="1" width = 400px height = 200px ></td>
+  </tr>
+  <tr>
+    <td><img src="assets/cast_results/Comparison3_screenshot_14.06.2021.png"  alt="1" width = 400px height = 200px ></td>
+    <td><img src="assets/cast_results/Comparison4_screenshot_14.06.2021.png"  alt="1" width = 400px height = 200px ></td>
+  </tr>
+</table>
+
+Below are shown the tesnorboard screenshots of our metrics using 3 set of hyperparametrs, that give us pretty good results with this dataset.
+
+<table style="width:100%" border="2" bordercolor = "#fffff">
+  <tr>
+    <td>
+      <font color="purple">
+      Hyperparametrs set 1
+      </font>
+    </td>
+    <td>
+      <font color="green">
+      Hyperparametrs set 2
+      </font>
+    </td>
+    <td>
+      <font color="orange">
+      Hyperparametrs set 3
+      </font>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <table style="width:100%" border="0" bordercolor = "#fffff">
+        <tr>
+          <td>AUG_PREST</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td>GPU_COUNT</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td>IMAGES_PER_GPU</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td>NAME</td>
+          <td>cast</td>
+        </tr>
+        <tr>
+          <td>TRAIN_SEQ</td>
+          <td>[ {"epochs": 150,"layers": "all", "lr": 0.002 }, {"epochs": 300, "layers": "all", "lr": 0.0002 } ]</td>
+        </tr>
+        <tr>
+          <td>LOSS_WEIGHTS</td>
+          <td>	{ "rpn_class_loss": 1.0, "rpn_bbox_loss": 1.0, "mrcnn_class_loss": 1.0, "mrcnn_bbox_loss": 1.0, "mrcnn_mask_loss": 1.0 }</td>
+        </tr>
+      </table>
+    </td>
+    <td>
+      <table style="width:100%" border="0" bordercolor = "#fffff">
+        <tr>
+          <td>AUG_PREST</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td>GPU_COUNT</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td>IMAGES_PER_GPU</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td>NAME</td>
+          <td>cast</td>
+        </tr>
+        <tr>
+          <td>TRAIN_SEQ</td>
+          <td>	[ {"epochs": 150, "layers": "all", "lr": 0.005 } ]</br></br></br></br></td>
+        </tr>
+        <tr>
+          <td>LOSS_WEIGHTS</td>
+          <td>	{ "rpn_class_loss": 0.5, "rpn_bbox_loss": 1.0, "mrcnn_class_loss": 0.5, "mrcnn_bbox_loss": 1.0, "mrcnn_mask_loss": 1.0 }</td>
+        </tr>
+      </table>
+    </td>
+    <td>
+      <table style="width:100%" border="0" bordercolor = "#fffff">
+        <tr>
+          <td>AUG_PREST</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td>GPU_COUNT</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td>IMAGES_PER_GPU</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td>NAME</td>
+          <td>cast</td>
+        </tr>
+        <tr>
+          <td>TRAIN_SEQ</td>
+          <td>	[ {"epochs": 250, "layers": "all", "lr": 0.0035 } ]</br></br></br></br></td>
+        </tr>
+        <tr>
+          <td>LOSS_WEIGHTS</td>
+          <td>		{ "rpn_class_loss": 0.8, "rpn_bbox_loss": 0.8, "mrcnn_class_loss": 0.5, "mrcnn_bbox_loss": 0.8, "mrcnn_mask_loss": 0.7 }</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<table style="width:100%">
+  <tr>
+    <td>Loss</td>
+    <td>Validation loss</td>
+  </tr>
+  <tr>
+    <td><img src="assets/training charts/loss.png"  alt="1" width = 400px height = 200px ></td>
+    <td><img src="assets/training charts/val_loss.png"  alt="1" width = 400px height = 200px ></td>
+  </tr>
+  <tr>
+    <td>mrcnn_bbox_loss</td>
+    <td>Validation mrcnn_bbox_loss</td>
+  </tr>
+  <tr>
+    <td><img src="assets/training charts/mrcnn_bbox_loss.png"  alt="1" width = 400px height = 200px ></td>
+    <td><img src="assets/training charts/val_mrcnn_bbox_loss.png"  alt="1" width = 400px height = 200px ></td>
+  </tr>
+  <tr>
+    <td>mrcnn_class_loss</td>
+    <td>Validation mrcnn_class_loss</td>
+  </tr>
+  <tr>
+    <td><img src="assets/training charts/mrcnn_class_loss.png"  alt="1" width = 400px height = 200px ></td>
+    <td><img src="assets/training charts/val_mrcnn_class_loss.png"  alt="1" width = 400px height = 200px ></td>
+  </tr>
+  <tr>
+    <td>mrcnn_mask_loss</td>
+    <td>Validation mrcnn_mask_loss</td>
+  </tr>
+  <tr>
+    <td><img src="assets/training charts/mrcnn_mask_loss.png"  alt="1" width = 400px height = 200px ></td>
+    <td><img src="assets/training charts/val_mrcnn_mask_loss.png"  alt="1" width = 400px height = 200px ></td>
+  </tr>
+  <tr>
+    <td>rpn_bbox_loss</td>
+    <td>Validation rpn_bbox_loss</td>
+  </tr>
+  <tr>
+    <td><img src="assets/training charts/rpn_bbox_loss.png"  alt="1" width = 400px height = 200px ></td>
+    <td><img src="assets/training charts/val_rpn_bbox_loss.png"  alt="1" width = 400px height = 200px ></td>
+  </tr>
+  <tr>
+    <td>rpn_class_loss</td>
+    <td>Validation rpn_class_loss</td>
+  </tr>
+  <tr>
+    <td><img src="assets/training charts/rpn_class_loss.png"  alt="1" width = 400px height = 200px ></td>
+    <td><img src="assets/training charts/val_rpn_class_loss.png"  alt="1" width = 400px height = 200px ></td>
+  </tr>
+</table>
 
 - - -
 
