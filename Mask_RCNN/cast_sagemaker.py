@@ -71,13 +71,16 @@ class castConfig(Config):
 	# SMALL MASKS DILATION PARAMETERS
 	# in this dataset we have quite a lot of small masks, to help the NN
 	# see those small masks we dilate them with differed dilation grades
-	# based on the size on the mask
-	DILATE_MASKS = True
-	DILATE_THERS_2 = 15000
-	DILATE_THERS_1 = 500
-	DILATE_ITERATIONS_2 = 10
-	DILATE_ITERATIONS_1 = 10
-	DILATE_KERNEL = np.ones((2, 2), 'uint8')
+	# based on the size of the mask
+	DILATE_MASKS = True # enable small mask dilation
+	DILATE_THERS_2 = 15000 # area in pixel, if the mask instance is smaller than that, trigger the dilation 2
+	DILATE_THERS_1 = 500 # area in pixel, if the mask instance is smaller than that, trigger the dilation 1
+	DILATE_ITERATIONS_2 = 10 # itaration of dilation 2
+	DILATE_ITERATIONS_1 = 10 # iteration of dilation 1
+	DILATE_KERNEL = np.ones((2, 2), 'uint8') # kernel of both dilation
+	# NOTE if one mask is smaller than thers_1 dilation 1 and 2 are triggered
+	# the dilation procedure is placed in the load_mask function
+
 
 	def __init__(self, **kwargs):
 		"""
