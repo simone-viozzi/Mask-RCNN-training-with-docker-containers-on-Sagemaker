@@ -22,7 +22,6 @@ Here is shown the result model inferencing on an image external to the training 
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 <!-- param::isNotitle::true:: -->
 
-- [**Overview**](#overview)
 - [**Project struscture**](#project-struscture)
 - [**Dataset**](#dataset)
   - [**Original dataset**](#original-dataset)
@@ -44,7 +43,6 @@ Here is shown the result model inferencing on an image external to the training 
     - [**Environment**](#environment)
   - [**Estimator parameters explained**](#estimator-parameters-explained)
     - [The fit method](#the-fit-method)
-- [**Training script**](#training-script)
 - [**Results**](#results)
 - [**Useful links**](#useful-links)
   - [AWS docs](#aws-docs)
