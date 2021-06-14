@@ -391,7 +391,7 @@ You can see our [dummy example code](Sagemaker_dummy_example/train.py) that perm
 
 - - -
 
-### /opt/ml/ folder structure
+### Training job container folder structure
 
 After the container is launched into SageMaker, the following folder structure is created under the folder `/opt/ml/`:
 

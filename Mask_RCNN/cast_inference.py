@@ -48,8 +48,8 @@ TEST_DATASET_PATH = "/home/massi/Dataset/cast_dataset_not_labled_part/remaining_
 ################################################################
 # MODEL PATH definitions, 
 # put here your directoryes and your model name
-checkpoints_path = "/home/massi/Progetti/repository_simone/Mask-RCNN-training-with-docker-containers-on-Sagemaker/logs/cast_test_polish_5/checkpoints"
-MODEL = "mask_rcnn_cast_0150.h5"
+checkpoints_path = "/home/massi/Progetti/repository_simone/Mask-RCNN-training-with-docker-containers-on-Sagemaker/logs/tests_polish/cast_test_polish_6/checkpoints"
+MODEL = "mask_rcnn_cast_0250.h5"
 MODEL_PATH = os.path.sep.join([checkpoints_path, MODEL])
 ################################################################
 
@@ -79,10 +79,10 @@ class castInferenceConfig(castConfig):
 
 	# set the minimum detection confidence (used to prune out false
 	# positive detections)
-	DETECTION_MIN_CONFIDENCE = 0.6
+	DETECTION_MIN_CONFIDENCE = 0.7
 
 	# Non-maximum suppression threshold for detection
-	DETECTION_NMS_THRESHOLD = 0.5
+	DETECTION_NMS_THRESHOLD = 0.3
 	
 	NUM_CLASSES = len(CLASS_NAMES) + 1
 
@@ -157,6 +157,9 @@ if __name__ == "__main__":
 	cv2.namedWindow("Original",cv2.WINDOW_NORMAL)
 	cv2.resizeWindow("Original", 600,600)
 
+	#cv2.namedWindow("Comparison",cv2.WINDOW_NORMAL)
+	#cv2.resizeWindow("Comparison", 1200,600)
+
 	show_masks = True
 	show_bboxs = True
 	show_text = True
@@ -199,6 +202,9 @@ if __name__ == "__main__":
 			# show the output image
 			cv2.imshow("Output", image_mask)
 			
+			#image_hstack = np.hstack((image_original, image_mask))
+			#cv2.imshow("Comparison", image_hstack)
+
 			key = cv2.waitKey(0)
 			
 			print(key)
