@@ -885,11 +885,75 @@ Below are shown the tesnorboard screenshots of our metrics using 3 set of hyperp
       Hyperparametrs set 1
       </font>
     </td>
+  </tr>
+  <tr>
+    <td>
+      <table style="width:100%" border="0" bordercolor = "#fffff">
+        <tr>
+          <td>AUG_PREST</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td>GPU_COUNT</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td>IMAGES_PER_GPU</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td>NAME</td>
+          <td>cast</td>
+        </tr>
+        <tr>
+          <td>TRAIN_SEQ</td>
+          <td>[ {"epochs": 150,"layers": "all", "lr": 0.002 }, </br> {"epochs": 300, "layers": "all", "lr": 0.0002 } ]</td>
+        </tr>
+        <tr>
+          <td>LOSS_WEIGHTS</td>
+          <td>	{ "rpn_class_loss": 1.0,</br>  "rpn_bbox_loss": 1.0, </br> "mrcnn_class_loss": 1.0,</br>  "mrcnn_bbox_loss": 1.0,</br>  "mrcnn_mask_loss": 1.0 }</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
     <td>
       <font color="green">
       Hyperparametrs set 2
       </font>
     </td>
+  </tr>
+    <tr>
+    <td>
+      <table style="width:100%" border="0" bordercolor = "#fffff">
+        <tr>
+          <td>AUG_PREST</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td>GPU_COUNT</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td>IMAGES_PER_GPU</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td>NAME</td>
+          <td>cast</td>
+        </tr>
+        <tr>
+          <td>TRAIN_SEQ</td>
+          <td>	[ {"epochs": 150, "layers": "all", "lr": 0.005 } ]</td>
+        </tr>
+        <tr>
+          <td>LOSS_WEIGHTS</td>
+          <td>	{ "rpn_class_loss": 0.5,</br>  "rpn_bbox_loss": 1.0,</br>  "mrcnn_class_loss": 0.5,</br>  "mrcnn_bbox_loss": 1.0,</br>  "mrcnn_mask_loss": 1.0 }</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
     <td>
       <font color="orange">
       Hyperparametrs set 3
@@ -917,67 +981,11 @@ Below are shown the tesnorboard screenshots of our metrics using 3 set of hyperp
         </tr>
         <tr>
           <td>TRAIN_SEQ</td>
-          <td>[ {"epochs": 150,"layers": "all", "lr": 0.002 }, {"epochs": 300, "layers": "all", "lr": 0.0002 } ]</td>
-        </tr>
-        <tr>
-          <td>LOSS_WEIGHTS</td>
-          <td>	{ "rpn_class_loss": 1.0, "rpn_bbox_loss": 1.0, "mrcnn_class_loss": 1.0, "mrcnn_bbox_loss": 1.0, "mrcnn_mask_loss": 1.0 }</td>
-        </tr>
-      </table>
-    </td>
-    <td>
-      <table style="width:100%" border="0" bordercolor = "#fffff">
-        <tr>
-          <td>AUG_PREST</td>
-          <td>1</td>
-        </tr>
-        <tr>
-          <td>GPU_COUNT</td>
-          <td>1</td>
-        </tr>
-        <tr>
-          <td>IMAGES_PER_GPU</td>
-          <td>1</td>
-        </tr>
-        <tr>
-          <td>NAME</td>
-          <td>cast</td>
-        </tr>
-        <tr>
-          <td>TRAIN_SEQ</td>
-          <td>	[ {"epochs": 150, "layers": "all", "lr": 0.005 } ]</td>
-        </tr>
-        <tr>
-          <td>LOSS_WEIGHTS</td>
-          <td>	{ "rpn_class_loss": 0.5, "rpn_bbox_loss": 1.0, "mrcnn_class_loss": 0.5, "mrcnn_bbox_loss": 1.0, "mrcnn_mask_loss": 1.0 }</td>
-        </tr>
-      </table>
-    </td>
-    <td>
-      <table style="width:100%" border="0" bordercolor = "#fffff">
-        <tr>
-          <td>AUG_PREST</td>
-          <td>1</td>
-        </tr>
-        <tr>
-          <td>GPU_COUNT</td>
-          <td>1</td>
-        </tr>
-        <tr>
-          <td>IMAGES_PER_GPU</td>
-          <td>1</td>
-        </tr>
-        <tr>
-          <td>NAME</td>
-          <td>cast</td>
-        </tr>
-        <tr>
-          <td>TRAIN_SEQ</td>
           <td>	[ {"epochs": 250, "layers": "all", "lr": 0.0035 } ]</td>
         </tr>
         <tr>
           <td>LOSS_WEIGHTS</td>
-          <td>		{ "rpn_class_loss": 0.8, "rpn_bbox_loss": 0.8, "mrcnn_class_loss": 0.5, "mrcnn_bbox_loss": 0.8, "mrcnn_mask_loss": 0.7 }</td>
+          <td>		{ "rpn_class_loss": 0.8,</br>  "rpn_bbox_loss": 0.8,</br>  "mrcnn_class_loss": 0.5,</br>  "mrcnn_bbox_loss": 0.8,</br>  "mrcnn_mask_loss": 0.7 }</td>
         </tr>
       </table>
     </td>
