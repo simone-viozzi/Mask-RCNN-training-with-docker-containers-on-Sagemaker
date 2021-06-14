@@ -945,7 +945,7 @@ Below are shown the tesnorboard screenshots of our metrics using 3 set of hyperp
         </tr>
         <tr>
           <td>TRAIN_SEQ</td>
-          <td>	[ {"epochs": 150, "layers": "all", "lr": 0.005 } ]</br></br></br></br></td>
+          <td>	[ {"epochs": 150, "layers": "all", "lr": 0.005 } ]</td>
         </tr>
         <tr>
           <td>LOSS_WEIGHTS</td>
@@ -973,7 +973,7 @@ Below are shown the tesnorboard screenshots of our metrics using 3 set of hyperp
         </tr>
         <tr>
           <td>TRAIN_SEQ</td>
-          <td>	[ {"epochs": 250, "layers": "all", "lr": 0.0035 } ]</br></br></br></br></td>
+          <td>	[ {"epochs": 250, "layers": "all", "lr": 0.0035 } ]</td>
         </tr>
         <tr>
           <td>LOSS_WEIGHTS</td>
