@@ -2,7 +2,15 @@
 
 Mask R-CNN for metal casting defects detection and instance segmentation using Keras and TensorFlow.
 
-This project was possible thanks to the repository [matterport/Mask_RCNN](https://github.com/matterport/Mask_RCNN), where we have adapted the code for instance segmentation written by matterport for work into a docker container and fine-tuned the pretrained model on COCO with our dataset, using Sagemaker.
+# **Overview**
+
+The core of the project was the matterport implementation of [Mask R-CNN](https://arxiv.org/pdf/1703.06870.pdf) an architecture proposed by Ross Girshick et al., revisited using [Feature pyramid network](https://arxiv.org/pdf/1612.03144.pdf) as final stage and using [Resnet101](https://arxiv.org/pdf/1512.03385.pdf) as backbone.
+
+In this project our target was to train the Mask_RCNN matterport implementation on our dataset using the sagemaker service of AWS. Our work in this way was principaly to prepare the dataset, the functions that adapt the dataset annotation with supervisely structure to the the input format of the framework, and the script that permit to lunch the training process on a docker container, with the specific needs of sagemaker. 
+Below is shown how to use sagemaker and how to prepare your image for training on a docker container using SageMaker.
+
+Here is shown the result model inferencing on an image external to the training set and validation set.
+- - -
 
 ![test inference](assets/cast_results/Comparison2_screenshot_14.06.2021.png)
 
@@ -49,13 +57,6 @@ This project was possible thanks to the repository [matterport/Mask_RCNN](https:
   - [Related papers](#related-papers)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-- - -
-
-# **Overview**
-
-The core of the project was the matterport implementation of [Mask R-CNN](https://arxiv.org/pdf/1703.06870.pdf) an architecture proposed by Ross Girshick et al., revisited using [Feature pyramid network](https://arxiv.org/pdf/1612.03144.pdf) as final stage and using [Resnet101](https://arxiv.org/pdf/1512.03385.pdf) as backbone.
-
-In this project our target was to train the Mask_RCNN matterport implementation on our dataset using the sagemaker service of AWS. Our work in this way was principaly to prepare the dataset, the functions that adapt the dataset annotation with supervisely structure to the the input format of the framework, and the script that permit to lunch the training process on a docker container, with the specific needs of sagemaker. 
 - - -
 
 # **Project struscture**
@@ -856,13 +857,6 @@ The documentation of the parameters is:
 - **job_name** (str) – Training job name. If not specified, the estimator generates a default job name based on the training image name and current timestamp. This need to be unique for every execution of the fit method.
 
 - - -
-
-# **Training script**
-
-
-
-- - -
-
 # **Results**
 
 Below can be seen same inferences make on images that arent used neither in the training nor in the validation set, the results are pretty good given the scarcity of labeled data, after same test and same dataset refinitions we find the right augmentation and the results has become acceptable.
