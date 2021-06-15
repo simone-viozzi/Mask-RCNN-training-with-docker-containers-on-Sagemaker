@@ -21,7 +21,6 @@ Here is shown the result model inferencing on an image external to the training 
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 <!-- param::isNotitle::true:: -->
 
-- [**Overview**](#overview)
 - [**Project struscture**](#project-struscture)
 - [**Dataset**](#dataset)
   - [**Original dataset**](#original-dataset)
@@ -30,7 +29,7 @@ Here is shown the result model inferencing on an image external to the training 
     - [**Json annotations preparation**](#json-annotations-preparation)
     - [**Augmentation**](#augmentation)
 - [**Training on Sagemaker**](#training-on-sagemaker)
-  - [Sagemaker overview](#sagemaker-overview)
+  - [**Sagemaker overview**](#sagemaker-overview)
   - [**Sagemaker API**](#sagemaker-api)
   - [**Taraining job on SageMaker**](#taraining-job-on-sagemaker)
     - [**Sagemaker container folder structure**](#sagemaker-container-folder-structure)
@@ -42,8 +41,7 @@ Here is shown the result model inferencing on an image external to the training 
     - [**hyperparameters**](#hyperparameters)
     - [**Environment**](#environment)
   - [**Estimator parameters explained**](#estimator-parameters-explained)
-    - [The fit method](#the-fit-method)
-- [**Training script**](#training-script)
+    - [**The fit method**](#the-fit-method)
 - [**Results**](#results)
 - [**Useful links**](#useful-links)
   - [AWS docs](#aws-docs)
@@ -60,7 +58,7 @@ Here is shown the result model inferencing on an image external to the training 
 
 # **Project struscture**
 
-In this section is shown the structure of the project and what is the content of each folder, below there is a littele description of each one.
+In this section is shown the structure of the project and what is the content of each folder, below there is a little description of each one.
 
 ```text
 .
@@ -151,14 +149,14 @@ The original dataset was made by 1300 images, due to time constraints we have on
 (this image is only rappresentative then how classes are applied)
 
 The dataset is released in [**supervisely format**](https://docs.supervise.ly/data-organization/00_ann_format_navi/04_supervisely_format_objects), where there is two way to extract objects bitmaps shown below.
-The goal for the dataset preparation for training Mask R-CNN is to extract from the dataset for each image several masks, one for each istance of object that is present into this immage and that is labled. Each mask is a simple numpy array of bool or uint8 with shape (height, width), where the background is indicated with zero and the labeed region of our istance is marked with pixel of value 1.
-At the end of the process we need to obtain for each image a numpy array with shape (height, width, n_inst) where n_inst is the number of instace of every class in the image and an array with shape (n_inst) that contains the class of each instance into the 3D array of masks.
+The goal for the dataset preparation for training Mask R-CNN is to extract from the dataset for each image several masks, one for each istance of object that is present into this immage and that is labled. Each mask is a simple numpy array of bool or uint8 with shape `(height, width)`, where the background is indicated with zero and the labeed region of our istance is marked with pixel of value 1.
+At the end of the process we need to obtain for each image a numpy array with shape `(height, width, n_inst)` where `n_inst` is the number of instace of every class in the image and an array with shape `(n_inst)` that contains the class of each instance into the 3D array of masks.
 
 ### **Mask images preparation**
 
 Notebook with code example: [**supervisely_mask_dataset_preparetion.ipynb**](dataset_preparation_notebooks/supervisely_mask_dataset_preparetion.ipynb)
 
-The first way is to use the images into datasets/cast_dataset/masks_machine/ folder where each image have the same name of the original, but their color are mapped in different way, in this format each pixel represent a class, the associations between colors and classes can be found into the obj_class_to_machine_color.json file, presented below in json format.
+The first way is to use the images into `datasets/cast_dataset/masks_machine/` folder where each image have the same name of the original, but their color are mapped in different way, in this format each pixel represent a class, the associations between colors and classes can be found into the `obj_class_to_machine_color.json` file, presented below in json format.
 
 ```json
 {
@@ -186,7 +184,7 @@ In the example below we can see as each detected region is marked with a cross, 
 
 ![Mask preview](assets/instance_estraction_from_mask/instaces_separation_from_class_mask.jpeg)
 
-The last step is similar to the first, where each class was sepatrated into multiple masks but at this point the only difference is that we're separating istances of the same class. So the last thing to do is to packing all this masks into one tensor with shape (h, w, n), and creating one vector of n elements where the classes of each mask are stored. Below are shown the result masks obtained from the chipping mask.
+The last step is similar to the first, where each class was sepatrated into multiple masks but at this point the only difference is that we're separating istances of the same class. So the last thing to do is to packing all this masks into one tensor with shape `(h, w, n)`, and creating one vector of n elements where the classes of each mask are stored. Below are shown the result masks obtained from the chipping mask.
 
 ![Mask preview](assets/instance_estraction_from_mask/separated_instances_of_class_1.png)
 
@@ -198,7 +196,7 @@ Notebook with code example: [**supervisely_mask_dataset_preparetion.ipynb**](dat
 
 Notebook with code example: [**supervisely_json_dataset_preparetion.ipynb**](dataset_preparation_notebooks/supervisely_json_dataset_preparation.ipynb)
 
-Supervisely whene the dataset is exported give you the mask dataset shown above and another one in json format, which is more meaningfull. For each image is present into the ann/ folder the corresponding file with same name but with .json extension, so for the image cast_def_0_102.jpeg there will be the file cast_def_0_102.jpeg.json containing all the info related to this image, for example all its lables, who labled the image, the image tags and many other information. Let’s take a look at the most meaningfull part of this format and at the cast_def_0_102.jpeg.json file:
+Supervisely whene the dataset is exported give you the mask dataset shown above and another one in json format, which is more meaningfull. For each image is present into the `ann/` folder the corresponding file with same name but with `.json` extension, so for the image `cast_def_0_102.jpeg` there will be the file `cast_def_0_102.jpeg.json` containing all the info related to this image, for example all its lables, who labled the image, the image tags and many other information. Let’s take a look at the most meaningfull part of this format and at the `cast_def_0_102.jpeg.json` file:
 
 - **size**:         list of the mask dimensions
   - **height**:     height of the image
@@ -260,8 +258,7 @@ Here we can see the complete json with all the values, but not all the data are 
 For achieve our goal, to obtain a tensor of masks for each object instace in the image, we have to decode each bitmap present into the json file. Each bitmap is a rectangular bool mask of arbitrary size that is obtained using the decode function shown below.
 
 ```python
-
-decode function 
+# decode function 
 def base64_2_mask(s):
     z = zlib.decompress(base64.b64decode(s))
     n = np.frombuffer(z, np.uint8)
@@ -269,7 +266,7 @@ def base64_2_mask(s):
     mask = cv2.imdecode(n, cv2.IMREAD_UNCHANGED)[:, :, 3].astype(bool)
     return mask
 
-encode function
+# encode function
 def mask_2_base64(mask):
     img_pil = Image.fromarray(np.array(mask, dtype=np.uint8))
     img_pil.putpalette([0,0,0,255,255,255])
@@ -284,9 +281,9 @@ The result of that function are masks with sizes determinated from the bitmaps s
 ![Mask preview](assets/instance_estraction_from_json/extracted_bitmaps_from_json_annotation.png)
 
 The last proces that we need to do for obtain our tensor is to create one blank tensor of masks, filled with only zeros, with size specified in the size field in the json and with the number of lables in the image, so we need to copy each bitmap on one mask using the origin field specified in each label object.
-The origin field contains two values, the x y cordintes of the top left angle of the bitmap in the image using as origin (0, 0) the top left angle of the mask, so using this values as offset for the copy operations the results are our masks. Now we have only to generate one vector that store the classes of each mask in uint8 format, and with this function applied on each image we have the dataset ready to be used on the Mask R-CNN tranining.
+The origin field contains two values, the x y cordintes of the top left angle of the bitmap in the image using as origin `(0, 0)` the top left angle of the mask, so using this values as offset for the copy operations the results are our masks. Now we have only to generate one vector that store the classes of each mask in uint8 format, and with this function applied on each image we have the dataset ready to be used on the Mask R-CNN tranining.
 
-The function described override the load_mask() function present in the Mask R-CNN framework.
+The function described override the `load_mask()` function present in the Mask R-CNN framework.
 
 ![Mask preview](assets/instance_estraction_from_json/extracted_masks_from_json_annotation.png)
 
@@ -316,7 +313,7 @@ So after tried it we realized three presets in the augmentation_presets.py file,
 
 # **Training on Sagemaker**
 
-## Sagemaker overview
+## **Sagemaker overview**
 
 The following diagram shows how you train and deploy a model with Amazon SageMaker:
 
@@ -717,9 +714,9 @@ class sagemaker.estimator.Estimator(
 
 We won't need to use all of them but is worth spending a few word on most of them:
 
-- **image_uri** (str) - The container image to use for training for. We need to use our ECR image from [this](#push-the-docker-image-to-ecr) step.
+- **image_uri** `(str)` - The container image to use for training for. We need to use our ECR image from [this](#push-the-docker-image-to-ecr) step.
 
-- **role** (str) – An AWS IAM role (either name or full ARN). The Amazon SageMaker training jobs and APIs that create Amazon SageMaker endpoints use this role to access training data and model artifacts. After the endpoint is created, the inference code might use the IAM role, if it needs to access an AWS resource.
+- **role** `(str)` – An AWS IAM role (either name or full ARN). The Amazon SageMaker training jobs and APIs that create Amazon SageMaker endpoints use this role to access training data and model artifacts. After the endpoint is created, the inference code might use the IAM role, if it needs to access an AWS resource.
 We can get the autogenerated one or the one we created, refer to [this](#sagemaker-API) step for more info.
 
     ```python
@@ -730,15 +727,15 @@ We can get the autogenerated one or the one we created, refer to [this](#sagemak
                         ...)
     ```
 
-- **instance_count** (int) – Number of Amazon EC2 instances to use for training.
+- **instance_count** `(int)` – Number of Amazon EC2 instances to use for training.
 
-- **instance_type** (str) – Type of EC2 instance to use for training, for example, `ml.c4.xlarge`.
+- **instance_type** `(str)` – Type of EC2 instance to use for training, for example, `ml.c4.xlarge`.
 
-- **volume_size** (int) – Size in GB of the EBS volume to use for storing input data during training (default: 30). Must be large enough to store training data if File Mode is used (which is the default).
+- **volume_size** `(int)` – Size in GB of the EBS volume to use for storing input data during training (default: 30). Must be large enough to store training data if File Mode is used (which is the default).
 
-- **max_run** (int) – Timeout in seconds for training (default: 24 * 60 * 60). After this amount of time Amazon SageMaker terminates the job regardless of its current status.
+- **max_run** `(int)` – Timeout in seconds for training (default: `24 * 60 * 60`). After this amount of time Amazon SageMaker terminates the job regardless of its current status.
 
-- **input_mode** (str) – The input mode that the algorithm supports (default: ‘File’). Valid modes:
+- **input_mode** `(str)` – The input mode that the algorithm supports (default: ‘File’). Valid modes:
 
   - ’File’ - Amazon SageMaker copies the training dataset from the S3 location to a local directory.
 
@@ -746,21 +743,21 @@ We can get the autogenerated one or the one we created, refer to [this](#sagemak
 
   This argument can be overriden on a per-channel basis using: `sagemaker.inputs.TrainingInput.input_mode`
 
-- **output_path** (str) – S3 location for saving the training result (model artifacts and output files). If not specified, results are stored to a default bucket. If the bucket with the specific name does not exist, the estimator creates the bucket during the fit() method execution.
+- **output_path** `(str)` – S3 location for saving the training result (model artifacts and output files). If not specified, results are stored to a default bucket. If the bucket with the specific name does not exist, the estimator creates the bucket during the `fit()` method execution.
 
-- **base_job_name** (str) – Prefix for training job name when the fit() method launches. If not specified, the estimator generates a default job name, based on the training image name and current timestamp.
+- **base_job_name** `(str)` – Prefix for training job name when the `fit()` method launches. If not specified, the estimator generates a default job name, based on the training image name and current timestamp.
 
-- **sagemaker_session** (sagemaker.session.Session) – Session object which manages interactions with Amazon SageMaker APIs and any other AWS services needed. If not specified, the estimator creates one using the default AWS configuration chain.
+- **sagemaker_session** `(sagemaker.session.Session)` – Session object which manages interactions with Amazon SageMaker APIs and any other AWS services needed. If not specified, the estimator creates one using the default AWS configuration chain.
 
-- **hyperparameters** (dict) – Dictionary containing the hyperparameters to initialize this estimator with.
+- **hyperparameters** `(dict)` – Dictionary containing the hyperparameters to initialize this estimator with.
 
-- **tags** (list[dict]) – List of tags for labeling a training job. For more, see <https://docs.aws.amazon.com/sagemaker/latest/dg/API_Tag.html>. This is useful to keep track of the cost of your trainings.
+- **tags** `(list[dict])` – List of tags for labeling a training job. For more, see <https://docs.aws.amazon.com/sagemaker/latest/dg/API_Tag.html>. This is useful to keep track of the cost of your trainings.
 
-- **model_uri** (str) – URI where a pre-trained model is stored, either locally or in S3 (default: None). If specified, the estimator will create a channel pointing to the model so the training job can download it.
+- **model_uri** `(str)` – URI where a pre-trained model is stored, either locally or in S3 (default: None). If specified, the estimator will create a channel pointing to the model so the training job can download it.
 
-- **model_channel_name** (str) – Name of the channel where ‘model_uri’ will be downloaded (default: ‘model’).
+- **model_channel_name** `(str)` – Name of the channel where ‘model_uri’ will be downloaded (default: ‘model’).
 
-- **metric_definitions** (list[dict]) – A list of dictionaries that defines the metric(s) used to evaluate the training jobs. Each dictionary contains two keys: ‘Name’ for the name of the metric, and ‘Regex’ for the regular expression used to extract the metric from the stdout and stderr of the training job. In our case the metrics are:
+- **metric_definitions** `(list[dict])` – A list of dictionaries that defines the metric(s) used to evaluate the training jobs. Each dictionary contains two keys: ‘Name’ for the name of the metric, and ‘Regex’ for the regular expression used to extract the metric from the stdout and stderr of the training job. In our case the metrics are:
 
     ```python
     metrics = [
@@ -781,15 +778,15 @@ We can get the autogenerated one or the one we created, refer to [this](#sagemak
     ]
     ```
 
-- **use_spot_instances** (bool) – Specifies whether to use SageMaker Managed Spot instances for training. If enabled then the max_wait arg should also be set. More information [here](https://docs.aws.amazon.com/sagemaker/latest/dg/model-managed-spot-training.html) (default: False).
+- **use_spot_instances** `(bool)` – Specifies whether to use SageMaker Managed Spot instances for training. If enabled then the max_wait arg should also be set. More information [here](https://docs.aws.amazon.com/sagemaker/latest/dg/model-managed-spot-training.html) (default: False).
 
-- **max_wait** (int) – Timeout in seconds waiting for spot training instances (default: None). After this amount of time Amazon SageMaker will stop waiting for Spot instances to become available (default: None).
+- **max_wait** `(int)` – Timeout in seconds waiting for spot training instances (default: None). After this amount of time Amazon SageMaker will stop waiting for Spot instances to become available (default: None).
 
-- **checkpoint_s3_uri** (str) – The S3 URI in which to persist checkpoints that the algorithm persists (if any) during training. (default: None).
+- **checkpoint_s3_uri** `(str)` – The S3 URI in which to persist checkpoints that the algorithm persists (if any) during training. (default: None).
 
-- **checkpoint_local_path** (str) – The local path that the algorithm writes its checkpoints to. SageMaker will persist all files under this path to checkpoint_s3_uri continually during training. On job startup the reverse happens - data from the s3 location is downloaded to this path before the algorithm is started. If the path is unset then SageMaker assumes the checkpoints will be provided under /opt/ml/checkpoints/. (default: None).
+- **checkpoint_local_path** `(str)` – The local path that the algorithm writes its checkpoints to. SageMaker will persist all files under this path to `checkpoint_s3_uri` continually during training. On job startup the reverse happens - data from the s3 location is downloaded to this path before the algorithm is started. If the path is unset then SageMaker assumes the checkpoints will be provided under `/opt/ml/checkpoints/`. (default: `None`).
 
-- **tensorboard_output_config** (TensorBoardOutputConfig) – Configuration for customizing debugging visualization using TensorBoard (default: None). For more information, see [Capture real time tensorboard data](https://sagemaker.readthedocs.io/en/stable/amazon_sagemaker_debugger.html#capture-real-time-tensorboard-data-from-the-debugging-hook). 
+- **tensorboard_output_config** `(TensorBoardOutputConfig)` – Configuration for customizing debugging visualization using TensorBoard (default: `None`). For more information, see [Capture real time tensorboard data](https://sagemaker.readthedocs.io/en/stable/amazon_sagemaker_debugger.html#capture-real-time-tensorboard-data-from-the-debugging-hook). 
 Example:
 
     ```python
@@ -809,17 +806,17 @@ Example:
 
     The domuntation for `TensorBoardOutputConfig` is [this](https://sagemaker.readthedocs.io/en/stable/api/training/debugger.html#sagemaker.debugger.TensorBoardOutputConfig):
 
-    Create a tensor ouput configuration object for debugging visualizations on TensorBoard. Initialize the TensorBoardOutputConfig instance.
+    Create a tensor ouput configuration object for debugging visualizations on TensorBoard. Initialize the `TensorBoardOutputConfig` instance.
 
-  - **s3_output_path** (str) – Optional. The location in Amazon S3 to store the output.
+  - **s3_output_path** `(str)` – Optional. The location in Amazon S3 to store the output.
 
-  - **container_local_output_path** (str) – Optional. The local path in the container.
+  - **container_local_output_path** `(str)` – Optional. The local path in the container.
 
-- **environment** (dict[str, str]) – Environment variables to be set for use during training job (default: None)
+- **environment** `(dict[str, str])` – Environment variables to be set for use during training job (default: `None`)
 
-- **max_retry_attempts** (int) – The number of times to move a job to the STARTING status. You can specify between 1 and 30 attempts. If the value of attempts is greater than zero, the job is retried on InternalServerFailure the same number of attempts as the value. You can cap the total duration for your job by setting max_wait and max_run (default: None)
+- **max_retry_attempts** `(int)` – The number of times to move a job to the STARTING status. You can specify between 1 and 30 attempts. If the value of attempts is greater than zero, the job is retried on InternalServerFailure the same number of attempts as the value. You can cap the total duration for your job by setting max_wait and max_run (default: None)
 
-### The fit method
+### **The fit method**
 
 To actually start the training job we need to call the `fit` method of the estimator. The default parameters are:
 
@@ -836,13 +833,13 @@ This API calls the Amazon SageMaker CreateTrainingJob API to start model trainin
 
 The documentation of the parameters is:
 
-- **inputs** (str or dict or sagemaker.inputs.TrainingInput) – Information about the training data. This can be one of three types:
+- **inputs** `(str or dict or sagemaker.inputs.TrainingInput)` – Information about the training data. This can be one of three types:
 
-  - `(str)` the S3 location where training data is saved, or a file:// path in local mode.
+  - `(str)` the S3 location where training data is saved, or a `file://` path in local mode.
 
-  - `(dict[str, str] or dict[str, sagemaker.inputs.TrainingInput])` If using multiple channels for training data, you can specify a dict mapping channel names to strings or TrainingInput() objects.
+  - `(dict[str, str] or dict[str, sagemaker.inputs.TrainingInput])` If using multiple channels for training data, you can specify a dict mapping channel names to strings or `TrainingInput()` objects.
 
-  - `(sagemaker.inputs.TrainingInput)` - channel configuration for S3 data sources that can provide additional information as well as the path to the training dataset. See sagemaker.inputs.TrainingInput() for full details.
+  - `(sagemaker.inputs.TrainingInput)` - channel configuration for S3 data sources that can provide additional information as well as the path to the training dataset. See `sagemaker.inputs.TrainingInput()` for full details.
 
   - `(sagemaker.session.FileSystemInput)` - channel configuration for a file system data source that can provide additional information as well as the path to the training dataset.
 
@@ -856,11 +853,11 @@ The documentation of the parameters is:
 
     In this way the dataset will be placed into the `/opt/ml/data/dataset/`, this can be read with the `SM_CHANNEL_dataset` environment variable on the training script side.
 
-- **wait** (bool) – Whether the call should wait until the job completes (default: True).
+- **wait** `(bool)` – Whether the call should wait until the job completes (default: True).
 
-- **logs** ([str]) – A list of strings specifying which logs to print. Acceptable strings are “All”, “None”, “Training”, or “Rules”. With the default value, `All` we can see on the output of this call the stdout and stderr of the container. This is essentail to track possible errors during the training process.
+- **logs** `([str])` – A list of strings specifying which logs to print. Acceptable strings are `All`, `None`, `Training`, or `Rules`. With the default value, `All` we can see on the output of this call the stdout and stderr of the container. This is essentail to track possible errors during the training process.
 
-- **job_name** (str) – Training job name. If not specified, the estimator generates a default job name based on the training image name and current timestamp. This need to be unique for every execution of the fit method.
+- **job_name** `(str)` – Training job name. If not specified, the estimator generates a default job name based on the training image name and current timestamp. This need to be unique for every execution of the fit method.
 
 - - -
 # **Results**
