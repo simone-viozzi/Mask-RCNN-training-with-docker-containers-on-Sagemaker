@@ -59,7 +59,7 @@ Here is shown the result model inferencing on an image external to the training 
 
 # **Project struscture**
 
-In this section is shown the structure of the project and what is the content of each folder, below there is a littele description of each one.
+In this section is shown the structure of the project and what is the content of each folder, below there is a little description of each one.
 
 ```text
 .
@@ -143,14 +143,14 @@ The original dataset was made by 1300 images, due to time constraints we have on
 (this image is only rappresentative then how classes are applied)
 
 The dataset is released in [**supervisely format**](https://docs.supervise.ly/data-organization/00_ann_format_navi/04_supervisely_format_objects), where there is two way to extract objects bitmaps shown below.
-The goal for the dataset preparation for training Mask R-CNN is to extract from the dataset for each image several masks, one for each istance of object that is present into this immage and that is labled. Each mask is a simple numpy array of bool or uint8 with shape (height, width), where the background is indicated with zero and the labeed region of our istance is marked with pixel of value 1.
-At the end of the process we need to obtain for each image a numpy array with shape (height, width, n_inst) where n_inst is the number of instace of every class in the image and an array with shape (n_inst) that contains the class of each instance into the 3D array of masks.
+The goal for the dataset preparation for training Mask R-CNN is to extract from the dataset for each image several masks, one for each istance of object that is present into this immage and that is labled. Each mask is a simple numpy array of bool or uint8 with shape `(height, width)`, where the background is indicated with zero and the labeed region of our istance is marked with pixel of value 1.
+At the end of the process we need to obtain for each image a numpy array with shape `(height, width, n_inst)` where `n_inst` is the number of instace of every class in the image and an array with shape `(n_inst)` that contains the class of each instance into the 3D array of masks.
 
 ### **Mask images preparation**
 
 Notebook with code example: [**supervisely_mask_dataset_preparetion.ipynb**](dataset_preparation_notebooks/supervisely_mask_dataset_preparetion.ipynb)
 
-The first way is to use the images into datasets/cast_dataset/masks_machine/ folder where each image have the same name of the original, but their color are mapped in different way, in this format each pixel represent a class, the associations between colors and classes can be found into the obj_class_to_machine_color.json file, presented below in json format.
+The first way is to use the images into `datasets/cast_dataset/masks_machine/` folder where each image have the same name of the original, but their color are mapped in different way, in this format each pixel represent a class, the associations between colors and classes can be found into the `obj_class_to_machine_color.json` file, presented below in json format.
 
 ```json
 {
@@ -178,7 +178,7 @@ In the example below we can see as each detected region is marked with a cross, 
 
 ![Mask preview](assets/instance_estraction_from_mask/instaces_separation_from_class_mask.jpeg)
 
-The last step is similar to the first, where each class was sepatrated into multiple masks but at this point the only difference is that we're separating istances of the same class. So the last thing to do is to packing all this masks into one tensor with shape (h, w, n), and creating one vector of n elements where the classes of each mask are stored. Below are shown the result masks obtained from the chipping mask.
+The last step is similar to the first, where each class was sepatrated into multiple masks but at this point the only difference is that we're separating istances of the same class. So the last thing to do is to packing all this masks into one tensor with shape `(h, w, n)`, and creating one vector of n elements where the classes of each mask are stored. Below are shown the result masks obtained from the chipping mask.
 
 ![Mask preview](assets/instance_estraction_from_mask/separated_instances_of_class_1.png)
 
@@ -190,7 +190,7 @@ Notebook with code example: [**supervisely_mask_dataset_preparetion.ipynb**](dat
 
 Notebook with code example: [**supervisely_json_dataset_preparetion.ipynb**](dataset_preparation_notebooks/supervisely_json_dataset_preparation.ipynb)
 
-Supervisely whene the dataset is exported give you the mask dataset shown above and another one in json format, which is more meaningfull. For each image is present into the ann/ folder the corresponding file with same name but with .json extension, so for the image cast_def_0_102.jpeg there will be the file cast_def_0_102.jpeg.json containing all the info related to this image, for example all its lables, who labled the image, the image tags and many other information. Let’s take a look at the most meaningfull part of this format and at the cast_def_0_102.jpeg.json file:
+Supervisely whene the dataset is exported give you the mask dataset shown above and another one in json format, which is more meaningfull. For each image is present into the `ann/` folder the corresponding file with same name but with `.json` extension, so for the image `cast_def_0_102.jpeg` there will be the file `cast_def_0_102.jpeg.json` containing all the info related to this image, for example all its lables, who labled the image, the image tags and many other information. Let’s take a look at the most meaningfull part of this format and at the `cast_def_0_102.jpeg.json` file:
 
 - **size**:         list of the mask dimensions
   - **height**:     height of the image
@@ -252,8 +252,7 @@ Here we can see the complete json with all the values, but not all the data are 
 For achieve our goal, to obtain a tensor of masks for each object instace in the image, we have to decode each bitmap present into the json file. Each bitmap is a rectangular bool mask of arbitrary size that is obtained using the decode function shown below.
 
 ```python
-
-decode function 
+# decode function 
 def base64_2_mask(s):
     z = zlib.decompress(base64.b64decode(s))
     n = np.frombuffer(z, np.uint8)
@@ -261,7 +260,7 @@ def base64_2_mask(s):
     mask = cv2.imdecode(n, cv2.IMREAD_UNCHANGED)[:, :, 3].astype(bool)
     return mask
 
-encode function
+# encode function
 def mask_2_base64(mask):
     img_pil = Image.fromarray(np.array(mask, dtype=np.uint8))
     img_pil.putpalette([0,0,0,255,255,255])
@@ -276,9 +275,9 @@ The result of that function are masks with sizes determinated from the bitmaps s
 ![Mask preview](assets/instance_estraction_from_json/extracted_bitmaps_from_json_annotation.png)
 
 The last proces that we need to do for obtain our tensor is to create one blank tensor of masks, filled with only zeros, with size specified in the size field in the json and with the number of lables in the image, so we need to copy each bitmap on one mask using the origin field specified in each label object.
-The origin field contains two values, the x y cordintes of the top left angle of the bitmap in the image using as origin (0, 0) the top left angle of the mask, so using this values as offset for the copy operations the results are our masks. Now we have only to generate one vector that store the classes of each mask in uint8 format, and with this function applied on each image we have the dataset ready to be used on the Mask R-CNN tranining.
+The origin field contains two values, the x y cordintes of the top left angle of the bitmap in the image using as origin `(0, 0)` the top left angle of the mask, so using this values as offset for the copy operations the results are our masks. Now we have only to generate one vector that store the classes of each mask in uint8 format, and with this function applied on each image we have the dataset ready to be used on the Mask R-CNN tranining.
 
-The function described override the load_mask() function present in the Mask R-CNN framework.
+The function described override the `load_mask()` function present in the Mask R-CNN framework.
 
 ![Mask preview](assets/instance_estraction_from_json/extracted_masks_from_json_annotation.png)
 
