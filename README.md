@@ -6,11 +6,10 @@ Mask R-CNN for metal casting defects detection and instance segmentation using K
 
 The core of the project was the matterport implementation of [Mask R-CNN](https://arxiv.org/pdf/1703.06870.pdf) an architecture proposed by Ross Girshick et al., revisited using [Feature pyramid network](https://arxiv.org/pdf/1612.03144.pdf) as final stage and using [Resnet101](https://arxiv.org/pdf/1512.03385.pdf) as backbone.
 
-In this project our target was to train the Mask_RCNN matterport implementation on our dataset using the sagemaker service of AWS. Our work in this way was principaly to prepare the dataset, the functions that adapt the dataset annotation with supervisely structure to the the input format of the framework, and the script that permit to lunch the training process on a docker container, with the specific needs of sagemaker. 
+In this project our target was to train the Mask_RCNN matterport implementation on our dataset using the sagemaker service of AWS. Our work in this way was principaly to prepare the dataset, the functions that adapt the dataset annotation with supervisely structure to the the input format of the framework, and the script that allow to lunch the training process on a docker container, with the specific needs of sagemaker. 
 Below is shown how to use sagemaker and how to prepare your image for training on a docker container using SageMaker.
 
 Here is shown the result model inferencing on an image external to the training set and validation set.
-- - -
 
 ![test inference](assets/cast_results/Comparison2_screenshot_14.06.2021.png)
 
@@ -109,6 +108,13 @@ In this section is shown the structure of the project and what is the content of
 - **datasets:** In thi folder are presents same dataset that we use for test, one of is the main dataset the only dataset physically present.
 
 - **Mask_RCNN:** This is the main folder of the project containing all the scripts for various purpose from inference on the model, to dataset importation debug and inference. In the same folder is contained the framework, in the folder <ins>maskrcnn</ins>, note that we have applaied same modification to it.
+
+  - [cast_debug.py](Mask_RCNN/cast_debug.py): Script used for augmentation and masks loading debug
+  - [cast_inference.py](Mask_RCNN/cast_inference.py): Script used for visualize the inference
+  - [cast_sagemaker.py](Mask_RCNN/cast_sagemaker.py): Script used for launch the training on the cast dataset on the Sagemaker.
+  - [lesions.py](Mask_RCNN/lesions.py): Script used for launch the training on ISIC2018 dataset in local
+  - [lesions_sagemaker.py](Mask_RCNN/lesions_sagemaker.py): Script used for launch the training on ISIC2018 dataset on sagemaker.
+  - [mrcnn](Mask_RCNN/mrcnn): Folder containing the mask_rcnn framework.
 
 - **Model:** In this folder is contained a pretrained model of Maskrcnn on COCO.
 
