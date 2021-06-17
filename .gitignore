@@ -1,6 +1,5 @@
 # backup folder
 backup/
-Model/
 checkpoints/
 Outputs/
 logs/
