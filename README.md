@@ -372,7 +372,7 @@ If you want to use Sagemaker API in local you need to create the role by yoursel
 
 - - -
 
-## **Taraining job on SageMaker**
+## **Training job on SageMaker**
 
 The first thing necessary to prepare the traing job on SageMaker is properly define a docker image, specificaly for work with sagemaker the image need the library `sagemaker-training` installed, as you can see in the showed docker file it's installed at build time.
 
