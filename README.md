@@ -31,7 +31,7 @@ Here is shown the result model inferencing on an image external to the training 
 - [**Training on Sagemaker**](#training-on-sagemaker)
   - [**Sagemaker overview**](#sagemaker-overview)
   - [**Sagemaker API**](#sagemaker-api)
-  - [**Taraining job on SageMaker**](#taraining-job-on-sagemaker)
+  - [**Training job on SageMaker**](#training-job-on-sagemaker)
     - [**Sagemaker container folder structure**](#sagemaker-container-folder-structure)
     - [**S3 as training data source and results destination**](#s3-as-training-data-source-and-results-destination)
     - [**Push the Docker image to ECR**](#push-the-docker-image-to-ecr)
